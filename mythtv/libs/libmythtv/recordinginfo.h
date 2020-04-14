@@ -248,7 +248,7 @@ class MTV_PUBLIC RecordingInfo : public ProgramInfo
     virtual ~RecordingInfo();
 
     // Serializers
-    virtual void SubstituteMatches(QString &str);
+    virtual void SubstituteMatches(QString &str, bool can = false);
 
     void SetRecordingID(uint _recordedid) {  recordedid = _recordedid;
                                              m_recordingFile->m_recordingId = _recordedid; }

@@ -14,6 +14,10 @@
 
 #define LOC      QString("MythSystemEventHandler: ")
 
+#define CAN_ESCAPE replace("'", "'\"'\"'")
+#define CAN_FIELD1(FIELD) QString(" '"#FIELD"=%1'")
+#define CAN_FIELD2(FIELD) QString(" '%1"#FIELD"=%2'")
+
 /** \class SystemEventThread
  *  \brief QRunnable class for running MythSystemEvent handler commands
  *
@@ -91,9 +95,9 @@ MythSystemEventHandler::~MythSystemEventHandler()
 }
 
 /** \fn MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
-                                                  QString &command)
+                                                  QString &command, bool can)
  *  \brief Substitutes %MATCH% variables in given command line.
- *  \sa ProgramInfo::SubstituteMatches(QString &str)
+ *  \sa ProgramInfo::SubstituteMatches(QString &str, bool can)
  *
  *  Subsitutes values for %MATCH% type variables in given command string.
  *  Some of these matches come from the tokens list passed in and some
@@ -102,9 +106,10 @@ MythSystemEventHandler::~MythSystemEventHandler()
  *
  *  \param tokens  Const QStringList containing token list passed with event.
  *  \param command Command line containing %MATCH% variables to be substituted.
+ *  \param can Whether this is for CAN MythTV
  */
 void MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
-                                               QString &command)
+                                               QString &command, bool can)
 {
     if (command.isEmpty())
         return;
@@ -118,6 +123,7 @@ void MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
 
     QStringList::const_iterator it = tokens.begin();
     ++it;
+    if (can) command += CAN_FIELD1(EVENTNAME).arg(QString(*it).CAN_ESCAPE); else
     command.replace(QString("%EVENTNAME%"), *it);
 
     ++it;
@@ -147,10 +153,13 @@ void MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
 
             // The following string is broken up on purpose to indicate
             // what we're replacing is the token surrounded by percent signs
+            if (can) command += CAN_FIELD2().arg(token.CAN_ESCAPE, QString(*it).CAN_ESCAPE); else
             command.replace(QString("%" "%1" "%").arg(token), *it);
 
+	    if (!can)
             if (!args.isEmpty())
                 args += " ";
+	    if (can) args += QString("=%1").arg(*it); else
             args += *it;
         }
 
@@ -163,8 +172,10 @@ void MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
 
             chanid = (*it).toUInt();
 
+	    if (!can)
             if (!args.isEmpty())
                 args += " ";
+	    if (can) args += QString("=%1").arg(*it); else
             args += *it;
         }
 
@@ -175,14 +186,17 @@ void MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
 
             recstartts = MythDate::fromString(*it);
 
+	    if (!can)
             if (!args.isEmpty())
                 args += " ";
+	    if (can) args += QString("=%1").arg(*it); else
             args += *it;
         }
 
         ++it;
     }
 
+    if (can) command += CAN_FIELD1(ARGS).arg(args.CAN_ESCAPE); else
     command.replace(QString("%ARGS%"), args);
 
     ProgramInfo pginfo(chanid, recstartts);
@@ -196,17 +210,23 @@ void MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
 
     if (pginfo_loaded)
     {
-        pginfo.SubstituteMatches(command);
+        pginfo.SubstituteMatches(command, can);
     }
     else
     {
+        if (can) command += CAN_FIELD1(CHANID).arg(QString::number(chanid).CAN_ESCAPE); else
         command.replace(QString("%CHANID%"), QString::number(chanid));
+        if (can) command += CAN_FIELD1(STARTTIME).arg(
+                        MythDate::toString(recstartts, MythDate::kFilename).CAN_ESCAPE); else
         command.replace(QString("%STARTTIME%"),
                         MythDate::toString(recstartts, MythDate::kFilename));
+        if (can) command += CAN_FIELD1(STARTTIMEISO).arg(
+                        recstartts.toString(Qt::ISODate).CAN_ESCAPE); else
         command.replace(QString("%STARTTIMEISO%"),
                         recstartts.toString(Qt::ISODate));
     }
 
+    if (can) command += CAN_FIELD1(VERBOSELEVEL).arg(QString("%1").arg(verboseMask).CAN_ESCAPE); else
     command.replace(QString("%VERBOSELEVEL%"), QString("%1").arg(verboseMask));
 
     LOG(VB_FILE, LOG_DEBUG, LOC + QString("SubstituteMatches: AFTER : %1")
@@ -242,7 +262,7 @@ QString MythSystemEventHandler::EventNameToSetting(const QString &name)
 /** \fn MythSystemEventHandler::customEvent(QEvent *e)
  *  \brief Custom Event handler for receiving and processing System Events
  *  \sa MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
-                                                  QString &command)
+                                                  QString &command, bool can)
  *      MythSystemEventHandler::EventNameToSetting(const QString &name)
  *
  *  This function listens for SYSTEM_EVENT messages and fires off any
@@ -294,6 +314,17 @@ void MythSystemEventHandler::customEvent(QEvent *e)
             SubstituteMatches(tokens, cmd);
 
             SystemEventThread *eventThread = new SystemEventThread(cmd);
+            MThreadPool::globalInstance()->startReserved(
+                eventThread, "SystemEvent");
+        }
+
+        // See if this system has a command that runs for all system events
+        cmd = gCoreContext->GetSetting("EventCmdAllCan");
+        if (!cmd.isEmpty())
+        {
+            SubstituteMatches(tokens, cmd, true);
+
+            SystemEventThread *eventThread = new SystemEventThread(cmd, "EventCmdAllCan");
             MThreadPool::globalInstance()->startReserved(
                 eventThread, "SystemEvent");
         }
