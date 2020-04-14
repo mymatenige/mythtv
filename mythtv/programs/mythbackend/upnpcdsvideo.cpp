@@ -424,7 +424,14 @@ bool UPnpCDSVideo::LoadSeries(const UPnpCDSRequest* pRequest,
         pContainer->SetChildCount(nSeasonCount);
         pContainer->SetChildContainerCount(nSeasonCount);
 
+if (pRequest->m_eClient != CDS_ClientPUPnP || pRequest->m_nClientVersion > 1.6)
+{
         PopulateArtworkURIS(pContainer, nVidID, m_URIBase);
+}
+else
+{
+        LOG(VB_UPNP, LOG_DEBUG, "Skipping artwork; CDS_ClientPUPnP <= v1.6");
+}
 
         pResults->Add(pContainer);
         pContainer->DecrRef();
@@ -501,7 +508,14 @@ bool UPnpCDSVideo::LoadSeasons(const UPnpCDSRequest* pRequest,
         pContainer->SetChildCount(nVideoCount);
         pContainer->SetChildContainerCount(0);
 
+if (pRequest->m_eClient != CDS_ClientPUPnP || pRequest->m_nClientVersion > 1.6)
+{
         PopulateArtworkURIS(pContainer, nVidID, m_URIBase);
+}
+else
+{
+        LOG(VB_UPNP, LOG_DEBUG, "Skipping artwork; CDS_ClientPUPnP <= v1.6");
+}
 
         pResults->Add(pContainer);
         pContainer->DecrRef();
@@ -837,7 +851,14 @@ bool UPnpCDSVideo::LoadVideos(const UPnpCDSRequest* pRequest,
         // ----------------------------------------------------------------------
         if (!sCoverArt.isEmpty() && (sCoverArt != "No Cover"))
         {
+if (pRequest->m_eClient != CDS_ClientPUPnP || pRequest->m_nClientVersion > 1.6)
+{
             PopulateArtworkURIS(pItem, nVidID, URIBase);
+}
+else
+{
+            LOG(VB_UPNP, LOG_DEBUG, "Skipping artwork; CDS_ClientPUPnP <= v1.6");
+}
         }
 
         pResults->Add( pItem );

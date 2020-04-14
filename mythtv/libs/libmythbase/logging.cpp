@@ -340,7 +340,7 @@ void LoggerThread::run(void)
                 qRegisterMetaType<QList<QByteArray> >("QList<QByteArray>");
 
                 m_zmqSocket =
-                    m_zmqContext->createSocket(nzmqt::ZMQSocket::TYP_DEALER, this);
+                    m_zmqContext->createSocket(nzmqt::ZMQSocket::TYP_DEALER);
                 connect(m_zmqSocket,
                         SIGNAL(messageReceived(const QList<QByteArray>&)),
                         SLOT(messageReceived(const QList<QByteArray>&)),

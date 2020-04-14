@@ -528,7 +528,14 @@ bool UPnpCDSMusic::LoadAlbums(const UPnpCDSRequest *pRequest,
         // Artwork
 
         if (nAlbumArtID > 0)
+if (pRequest->m_eClient != CDS_ClientPUPnP || pRequest->m_nClientVersion > 1.6)
+{
             PopulateArtworkURIS(pContainer, nSongId);
+}
+else
+{
+            LOG(VB_UPNP, LOG_DEBUG, "Skipping artwork; CDS_ClientPUPnP <= v1.6");
+}
 
         pResults->Add(pContainer);
         pContainer->DecrRef();
@@ -798,7 +805,14 @@ bool UPnpCDSMusic::LoadTracks(const UPnpCDSRequest *pRequest,
 
         // Artwork
         if (nAlbumArtID > 0)
+if (pRequest->m_eClient != CDS_ClientPUPnP || pRequest->m_nClientVersion > 1.6)
+{
             PopulateArtworkURIS(pItem, nId);
+}
+else
+{
+            LOG(VB_UPNP, LOG_DEBUG, "Skipping artwork; CDS_ClientPUPnP <= v1.6");
+}
 
         // ----------------------------------------------------------------------
         // Add Music Resource Element based on File extension (HTTP)
