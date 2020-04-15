@@ -37,6 +37,10 @@ using std::min;
 
 #define LOC      QString("ProgramInfo(%1): ").arg(GetBasename())
 
+#define CAN_ESCAPE replace("'", "'\"'\"'")
+#define CAN_FIELD1(FIELD) QString(" '"#FIELD"=%1'")
+#define CAN_FIELD2(FIELD) QString(" '%1"#FIELD"=%2'")
+
 //#define DEBUG_IN_USE
 
 static int init_tr(void);
@@ -5444,41 +5448,62 @@ QString ProgramInfo::i18n(const QString &msg)
     return (msg_arr == msg_i18n_arr) ? msg : msg_i18n;
 }
 
-/** \fn ProgramInfo::SubstituteMatches(QString &str)
+/** \fn ProgramInfo::SubstituteMatches(QString &str, bool can)
  *  \brief Subsitute %MATCH% type variable names in the given string
  *  \param str QString to substitute matches in
+ *  \param can Whether this is for CAN MythTV
  *  \note This method sometimes initiates a QUERY_CHECKFILE MythProto
  *        call and so should not be called from the UI thread.
  */
-void ProgramInfo::SubstituteMatches(QString &str)
+void ProgramInfo::SubstituteMatches(QString &str, bool can)
 {
     QString pburl = GetPlaybackURL(false, true);
     if (pburl.startsWith("myth://"))
     {
+        if (can) str += CAN_FIELD1(DIR).arg(pburl.CAN_ESCAPE); else
         str.replace(QString("%DIR%"), pburl);
     }
     else
     {
         QFileInfo dirInfo(pburl);
+        if (can) str += CAN_FIELD1(DIR).arg(dirInfo.path().CAN_ESCAPE); else
         str.replace(QString("%DIR%"), dirInfo.path());
     }
 
+    if (can) str += CAN_FIELD1(FILE).arg(GetBasename().CAN_ESCAPE); else
     str.replace(QString("%FILE%"), GetBasename());
+    if (can) str += CAN_FIELD1(TITLE).arg(title.CAN_ESCAPE); else
     str.replace(QString("%TITLE%"), title);
+    if (can) str += CAN_FIELD1(SUBTITLE).arg(subtitle.CAN_ESCAPE); else
     str.replace(QString("%SUBTITLE%"), subtitle);
+    if (can) str += CAN_FIELD1(SEASON).arg(QString::number(season).CAN_ESCAPE); else
     str.replace(QString("%SEASON%"), QString::number(season));
+    if (can) str += CAN_FIELD1(EPISODE).arg(QString::number(episode).CAN_ESCAPE); else
     str.replace(QString("%EPISODE%"), QString::number(episode));
+    if (can) str += CAN_FIELD1(TOTALEPISODES).arg(QString::number(totalepisodes).CAN_ESCAPE); else
     str.replace(QString("%TOTALEPISODES%"), QString::number(totalepisodes));
+    if (can) str += CAN_FIELD1(SYNDICATEDEPISODE).arg(syndicatedepisode.CAN_ESCAPE); else
     str.replace(QString("%SYNDICATEDEPISODE%"), syndicatedepisode);
+    if (can) str += CAN_FIELD1(DESCRIPTION).arg(description.CAN_ESCAPE); else
     str.replace(QString("%DESCRIPTION%"), description);
+    if (can) str += CAN_FIELD1(HOSTNAME).arg(hostname.CAN_ESCAPE); else
     str.replace(QString("%HOSTNAME%"), hostname);
+    if (can) str += CAN_FIELD1(CATEGORY).arg(category.CAN_ESCAPE); else
     str.replace(QString("%CATEGORY%"), category);
+    if (can) str += CAN_FIELD1(RECGROUP).arg(recgroup.CAN_ESCAPE); else
     str.replace(QString("%RECGROUP%"), recgroup);
+    if (can) str += CAN_FIELD1(PLAYGROUP).arg(playgroup.CAN_ESCAPE); else
     str.replace(QString("%PLAYGROUP%"), playgroup);
+    if (can) str += CAN_FIELD1(CHANID).arg(QString::number(chanid).CAN_ESCAPE); else
     str.replace(QString("%CHANID%"), QString::number(chanid));
+    if (can) str += CAN_FIELD1(INETREF).arg(inetref.CAN_ESCAPE); else
     str.replace(QString("%INETREF%"), inetref);
+    if (can) str += CAN_FIELD1(PARTNUMBER).arg(QString::number(partnumber).CAN_ESCAPE); else
     str.replace(QString("%PARTNUMBER%"), QString::number(partnumber));
+    if (can) str += CAN_FIELD1(PARTTOTAL).arg(QString::number(parttotal).CAN_ESCAPE); else
     str.replace(QString("%PARTTOTAL%"), QString::number(parttotal));
+    if (can) str += CAN_FIELD1(ORIGINALAIRDATE).arg(
+                originalAirDate.toString(Qt::ISODate).CAN_ESCAPE); else
     str.replace(QString("%ORIGINALAIRDATE%"),
                 originalAirDate.toString(Qt::ISODate));
     static const char *time_str[] =
@@ -5487,15 +5512,24 @@ void ProgramInfo::SubstituteMatches(QString &str)
         { &recstartts, &recendts, &startts,    &endts,    };
     for (uint i = 0; i < sizeof(time_str)/sizeof(char*); i++)
     {
+        if (can) str += CAN_FIELD2().arg(QString(time_str[i]).CAN_ESCAPE,
+                    (time_dtr[i]->toLocalTime()).toString("yyyyMMddhhmmss").CAN_ESCAPE); else
         str.replace(QString("%%1%").arg(time_str[i]),
                     (time_dtr[i]->toLocalTime()).toString("yyyyMMddhhmmss"));
+        if (can) str += CAN_FIELD2(ISO).arg(QString(time_str[i]).CAN_ESCAPE,
+                    (time_dtr[i]->toLocalTime()).toString(Qt::ISODate).CAN_ESCAPE); else
         str.replace(QString("%%1ISO%").arg(time_str[i]),
                     (time_dtr[i]->toLocalTime()).toString(Qt::ISODate));
+        if (can) str += CAN_FIELD2(UTC).arg(QString(time_str[i]).CAN_ESCAPE,
+                    time_dtr[i]->toString("yyyyMMddhhmmss").CAN_ESCAPE); else
         str.replace(QString("%%1UTC%").arg(time_str[i]),
                     time_dtr[i]->toString("yyyyMMddhhmmss"));
+        if (can) str += CAN_FIELD2(ISOUTC).arg(QString(time_str[i]).CAN_ESCAPE,
+                    time_dtr[i]->toString(Qt::ISODate).CAN_ESCAPE); else
         str.replace(QString("%%1ISOUTC%").arg(time_str[i]),
                     time_dtr[i]->toString(Qt::ISODate));
     }
+    if (can) str += CAN_FIELD1(RECORDEDID).arg(QString::number(recordedid).CAN_ESCAPE); else
     str.replace(QString("%RECORDEDID%"), QString::number(recordedid));
 }
 

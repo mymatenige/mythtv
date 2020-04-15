@@ -21,6 +21,10 @@
 
 #define LOC      QString("RecordingInfo(%1): ").arg(GetBasename())
 
+#define CAN_ESCAPE replace("'", "'\"'\"'")
+#define CAN_FIELD1(FIELD) QString(" '"#FIELD"=%1'")
+#define CAN_FIELD2(FIELD) QString(" '%1"#FIELD"=%2'")
+
 static inline QString null_to_empty(const QString &str)
 {
     return str.isEmpty() ? "" : str;
@@ -1604,19 +1608,28 @@ void RecordingInfo::SetDupHistory(void)
 /**
  *  \brief Replace %MATCH% vars in the specified string
  *  \param str QString containing matches to be substituted
+ *  \param can Whether this is for CAN MythTV
  */
-void RecordingInfo::SubstituteMatches(QString &str)
+void RecordingInfo::SubstituteMatches(QString &str, bool can)
 {
+    if (can) str += CAN_FIELD1(RECID).arg(QString::number(getRecordID()).CAN_ESCAPE); else
     str.replace("%RECID%", QString::number(getRecordID()));
+    if (can) str += CAN_FIELD1(PARENTID).arg(QString::number(parentid).CAN_ESCAPE); else
     str.replace("%PARENTID%", QString::number(parentid));
+    if (can) str += CAN_FIELD1(FINDID).arg(QString::number(findid).CAN_ESCAPE); else
     str.replace("%FINDID%", QString::number(findid));
+    if (can) str += CAN_FIELD1(RECSTATUS).arg(QString::number(recstatus).CAN_ESCAPE); else
     str.replace("%RECSTATUS%", QString::number(recstatus));
+    if (can) str += CAN_FIELD1(RECTYPE).arg(QString::number(rectype).CAN_ESCAPE); else
     str.replace("%RECTYPE%", QString::number(rectype));
+    if (can) str += CAN_FIELD1(REACTIVATE).arg(QString(IsReactivated() ? "1" : "0").CAN_ESCAPE); else
     str.replace("%REACTIVATE%", IsReactivated() ? "1" : "0");
+    if (can) str += CAN_FIELD1(INPUTNAME).arg(GetInputName().CAN_ESCAPE); else
     str.replace("%INPUTNAME%", GetInputName());
+    if (can) str += CAN_FIELD1(CHANNUM).arg(GetChanNum().CAN_ESCAPE); else
     str.replace("%CHANNUM%", GetChanNum());
 
-    ProgramInfo::SubstituteMatches(str);
+    ProgramInfo::SubstituteMatches(str, can);
 }
 
 /**
