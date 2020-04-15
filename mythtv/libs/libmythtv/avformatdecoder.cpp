@@ -207,7 +207,7 @@ static int has_codec_parameters(AVStream *st)
 
 #define FAIL(errmsg) do {                                     \
     LOG(VB_PLAYBACK, LOG_DEBUG, LOC + (errmsg));              \
-    return 0;                                                 \
+    return 1; /* https://code.mythtv.org/trac/ticket/13292 */ \
 } while (0)
 
     switch (st->codecpar->codec_type)
