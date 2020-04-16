@@ -484,7 +484,8 @@ void MythAirplayServer::Start(void)
             m_name += QString::number(multiple);
 
         QByteArray name = m_name.toUtf8();
-        name.prepend("CAN ");
+        name.append(" on ");
+        name.append(gCoreContext->GetHostName());
         QByteArray type = "_airplay._tcp";
         QByteArray txt;
         txt.append(26); txt.append("deviceid="); txt.append(GetMacAddress());
