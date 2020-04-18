@@ -34,7 +34,7 @@ class MTV_PUBLIC MythSystemEventHandler : public QObject
 
   private:
     // Helpers for converting incoming events to command lines
-    static void SubstituteMatches(const QStringList &tokens, QString &command);
+    static void SubstituteMatches(const QStringList &tokens, QString &command, bool all = false);
     static QString EventNameToSetting(const QString &name);
 
     // Custom Event Handler
