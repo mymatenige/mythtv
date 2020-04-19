@@ -574,15 +574,7 @@ bool UPnpCDSTv::LoadTitles(const UPnpCDSRequest* pRequest,
             pContainer->SetPropValue("storageMedium", "HDD");
 
             // Artwork
-            // Hack for Portable SDK for UPnP devices/1.6.19 in VLC
-            if (pRequest->m_eClient != CDS_ClientPUPnP || pRequest->m_nClientVersion > 1.6)
-            {
-                PopulateArtworkURIS(pContainer, sInetRef, 0, m_uriBase); // No particular season
-            }
-            else
-            {
-                LOG(VB_UPNP, LOG_DEBUG, "Skipping artwork; CDS_ClientPUPnP <= v1.6");
-            }
+            PopulateArtworkURIS(pContainer, sInetRef, 0, m_uriBase); // No particular season
 
             pResults->Add(pContainer);
             pContainer->DecrRef();
@@ -1309,40 +1301,24 @@ bool UPnpCDSTv::LoadRecordings(const UPnpCDSRequest* pRequest,
         // MUST be _TN and 160px
         // ----------------------------------------------------------------------
 
-        // Hack for Portable SDK for UPnP devices/1.6.19 in VLC
-        if (pRequest->m_eClient != CDS_ClientPUPnP || pRequest->m_nClientVersion > 1.6)
-        {
-            QUrl previewURI = URIBase;
-            QUrlQuery previewQuery;
-            previewURI.setPath("/Content/GetPreviewImage");
-            previewQuery.addQueryItem("RecordedId", QString::number(nRecordedId));
-            previewQuery.addQueryItem("Width", "160");
-            previewQuery.addQueryItem("Format", "JPG");
-            previewURI.setQuery(previewQuery);
+        QUrl previewURI = URIBase;
+        QUrlQuery previewQuery;
+        previewURI.setPath("/Content/GetPreviewImage");
+        previewQuery.addQueryItem("RecordedId", QString::number(nRecordedId));
+        previewQuery.addQueryItem("Width", "160");
+        previewQuery.addQueryItem("Format", "JPG");
+        previewURI.setQuery(previewQuery);
 
-            sProtocol = DLNA::ProtocolInfoString(UPNPProtocol::kHTTP, "image/jpeg",
-                                                 QSize(160, 160));
-            pItem->AddResource( sProtocol, previewURI.toEncoded());
-        }
-        else
-        {
-            LOG(VB_UPNP, LOG_DEBUG, "Skipping artwork; CDS_ClientPUPnP <= v1.6");
-        }
+        sProtocol = DLNA::ProtocolInfoString(UPNPProtocol::kHTTP, "image/jpeg",
+                                             QSize(160, 160));
+        pItem->AddResource( sProtocol, previewURI.toEncoded());
 
         // ----------------------------------------------------------------------
         // Add Artwork
         // ----------------------------------------------------------------------
         if (!sInetRef.isEmpty())
         {
-            // Hack for Portable SDK for UPnP devices/1.6.19 in VLC
-            if (pRequest->m_eClient != CDS_ClientPUPnP || pRequest->m_nClientVersion > 1.6)
-            {
-                PopulateArtworkURIS(pItem, sInetRef, nSeason, URIBase);
-            }
-            else
-            {
-                LOG(VB_UPNP, LOG_DEBUG, "Skipping artwork; CDS_ClientPUPnP <= v1.6");
-            }
+            PopulateArtworkURIS(pItem, sInetRef, nSeason, URIBase);
         }
 
         pResults->Add( pItem );

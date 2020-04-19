@@ -379,12 +379,6 @@ void UPnpCDS::HandleBrowse( HTTPRequest *pRequest )
     request.m_eBrowseFlag       =
         GetBrowseFlag( pRequest->m_mapParams[ "browseflag"    ] );
     request.m_sFilter           = pRequest->m_mapParams[ "filter"        ];
-    // Hack for Portable SDK for UPnP devices/1.6.19 in VLC
-    if (request.m_eClient == CDS_ClientPUPnP && request.m_nClientVersion <= 1.6)
-    {
-        LOG(VB_UPNP, LOG_DEBUG, "Ignoring filter; CDS_ClientPUPnP <= v1.6");
-        request.m_sFilter = "*";
-    }
     request.m_nStartingIndex    = Max(pRequest->m_mapParams[ "startingindex" ].toUShort(),
                                       uint16_t(0));
     request.m_nRequestedCount   =
@@ -564,12 +558,6 @@ void UPnpCDS::HandleSearch( HTTPRequest *pRequest )
     request.m_sObjectId         = pRequest->m_mapParams[ "objectid"      ];
     request.m_sContainerID      = pRequest->m_mapParams[ "containerid"   ];
     request.m_sFilter           = pRequest->m_mapParams[ "filter"        ];
-    // Hack for Portable SDK for UPnP devices/1.6.19 in VLC
-    if (request.m_eClient == CDS_ClientPUPnP && request.m_nClientVersion <= 1.6)
-    {
-        LOG(VB_UPNP, LOG_DEBUG, "Ignoring filter; CDS_ClientPUPnP <= v1.6");
-        request.m_sFilter = "*";
-    }
     request.m_nStartingIndex    =
         pRequest->m_mapParams[ "startingindex" ].toLong();
     request.m_nRequestedCount   =
