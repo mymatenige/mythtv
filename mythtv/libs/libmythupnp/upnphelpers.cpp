@@ -36,8 +36,10 @@ QString TimeFormat(const QTime &time)
 
 QString TimeFormat(uint32_t msec)
 {
-    QTime time = QTime::fromMSecsSinceStartOfDay(msec);
-    return time.toString("HH:mm:ss");
+    return QString("%1:%2:%3")
+        .arg((msec / (1000 * 60 * 60)) % 24, 2,10,QChar('0'))  // Hours
+        .arg((msec / (1000 * 60)) % 60,      2,10,QChar('0'))  // Minutes
+        .arg((msec / 1000) % 60,             2,10,QChar('0')); // Seconds
 }
 
 QString DateTimeFormat(const QDateTime &dateTime)
@@ -88,8 +90,11 @@ QString resDurationFormat(uint32_t msec)
     // M = Minutes (2 digits, 0 prefix)
     // S = Seconds (2 digits, 0 prefix)
     // FS = Fractional Seconds (milliseconds)
-    QTime time = QTime::fromMSecsSinceStartOfDay(msec);
-    return time.toString("H:mm:ss:zzz");
+    return QString("%01u:%02u:%02u.%01u")
+        .arg((msec / (1000 * 60 * 60)) % 24, 1,10,QChar('0')) // Hours
+        .arg((msec / (1000 * 60)) % 60,      2,10,QChar('0')) // Minutes
+        .arg((msec / 1000) % 60,             2,10,QChar('0')) // Seconds
+        .arg(msec % 1000,                    1,10,QChar('0'));
 }
 
 };
