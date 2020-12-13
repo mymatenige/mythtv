@@ -130,7 +130,7 @@ RecordingInfo::RecordingInfo(
 
     m_stars = clamp(_stars, 0.0F, 1.0F);
     m_originalAirDate = _originalAirDate;
-    if (m_originalAirDate.isValid() && m_originalAirDate < QDate(1940, 1, 1))
+    if (m_originalAirDate.isValid() && m_originalAirDate < QDate(1895, 12, 28))
         m_originalAirDate = QDate();
 
     m_programFlags &= ~FL_REPEAT;
@@ -1097,7 +1097,7 @@ bool RecordingInfo::InsertProgram(RecordingInfo *pg,
         query.bindValue(":ORIGAIRDATE", pg->m_originalAirDate);
     // If there is no originalairdate use "year"
     }
-    else if (pg->m_year >= 1940)
+    else if (pg->m_year >= 1895)
     {
         query.bindValue(":ORIGAIRDATE", QDate(pg->m_year,1,1));
     }
