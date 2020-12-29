@@ -4899,11 +4899,11 @@ void Scheduler::GetAllScheduled(RecList &proglist, SchedSortColumn sortBy,
         "       channel.commmethod                      " // 25
         "FROM record "
         "LEFT JOIN channel ON channel.callsign = record.station "
-	"                     AND deleted IS NULL "
+        "                     AND deleted IS NULL "
         "GROUP BY recordid "
         "ORDER BY %1 %2");
 
-    query = query.arg(sortColumn).arg(order).arg(kAllRecord).arg(kOneRecord);
+    query = query.arg(sortColumn).arg(order);
 
     MSqlQuery result(MSqlQuery::InitCon());
     result.prepare(query);
