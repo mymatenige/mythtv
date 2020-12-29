@@ -4899,9 +4899,7 @@ void Scheduler::GetAllScheduled(RecList &proglist, SchedSortColumn sortBy,
         "       channel.commmethod                      " // 25
         "FROM record "
         "LEFT JOIN channel ON channel.callsign = record.station "
-	// Exclude deleted channels except when ...
-	// ... this is an 'always on any channel' or 'find one' recording without the 'This Channel' filter
-        "WHERE deleted IS NULL OR ((type = %3 OR type = %4) AND filter & (1 << 10) = 0) "
+	"                     AND deleted IS NULL "
         "GROUP BY recordid "
         "ORDER BY %1 %2");
 
