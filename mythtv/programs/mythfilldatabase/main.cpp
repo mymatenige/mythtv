@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
 
     if (from_file)
     {
-        QString status = QObject::tr("currently running.");
+        QString status = QObject::tr("Running.");
         QDateTime GuideDataBefore;
         QDateTime GuideDataAfter;
 
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
 
         if (GuideDataAfter == GuideDataBefore)
         {
-            status = QObject::tr("Grabber failure.");
+            status = QObject::tr("No new data.");
         }
         else
         {
