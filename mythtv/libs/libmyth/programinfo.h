@@ -307,7 +307,7 @@ class MPUBLIC ProgramInfo
     virtual void ToMap(InfoMap &progMap,
                        bool showrerecord = false,
                        uint star_range = 10) const;
-    virtual void SubstituteMatches(QString &str);
+    virtual void SubstituteMatches(QString &str, bool all = false);
 
     // Used for scheduling recordings
     bool IsSameProgram(const ProgramInfo &other) const; // Exact same program
