@@ -298,6 +298,11 @@ static UPnpCDSClientException clientExceptions[] = {
     { CDS_ClientSonyDB,
       "X-AV-Client-Info",
       "cn=\"Sony Corporation\"; mn=\"Blu-ray Disc Player\"" },
+    // Hack for Portable SDK for UPnP devices/1.6.19 in VLC
+    // Portable SDK for UPnP devices
+    { CDS_ClientPUPnP,
+      "User-Agent",
+      "Portable SDK for UPnP devices/" },
 };
 static uint clientExceptionCount = sizeof(clientExceptions) /
                                    sizeof(clientExceptions[0]);
