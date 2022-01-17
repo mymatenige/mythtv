@@ -993,7 +993,7 @@ ThemeUpdateChecker::ThemeUpdateChecker(void) :
 {
     QString version = MYTH_SOURCE_PATH;
 
-    if (!version.isEmpty() && !version.startsWith("fixes/") && !version.startsWith("mymatenige/fixes/")
+    if (!version.isEmpty() && !version.startsWith("fixes/") && !version.startsWith("mymatenige/fixes/"))
     {
         // Treat devel branches as master
         m_mythVersions << "trunk";
