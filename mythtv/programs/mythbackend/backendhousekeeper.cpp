@@ -410,7 +410,7 @@ bool ThemeUpdateTask::DoRun(void)
     QString MythVersion = MYTH_SOURCE_PATH;
 
     // Treat devel branches as master
-    if (!MythVersion.isEmpty() && !MythVersion.startsWith("fixes/"))
+    if (!MythVersion.isEmpty() && !MythVersion.startsWith("fixes/") && !MythVersion.startsWith("mymatenige/fixes/"))
     {
         // FIXME: For now, treat git master the same as svn trunk
         MythVersion = "trunk";
