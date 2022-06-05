@@ -215,7 +215,7 @@ class MTV_PUBLIC RecordingInfo : public ProgramInfo
     ~RecordingInfo() override;
 
     // Serializers
-    void SubstituteMatches(QString &str) override; // ProgramInfo
+    void SubstituteMatches(QString &str, bool all = false) override; // ProgramInfo
 
     void SetRecordingID(uint _recordedid) override // ProgramInfo
         {  m_recordedId = _recordedid;
