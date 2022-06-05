@@ -278,7 +278,7 @@ bool UPnpCDS::ProcessRequest( HTTPRequest *pRequest )
     return false;
 }
 
-static const std::array<const UPnpCDSClientException,5> clientExceptions {{
+static const std::array<const UPnpCDSClientException,6> clientExceptions {{
     // Windows Media Player version 12
     { CDS_ClientWMP, 
       "User-Agent",
