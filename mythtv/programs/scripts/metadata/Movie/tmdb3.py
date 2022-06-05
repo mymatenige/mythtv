@@ -138,10 +138,10 @@ def main(showType, command):
         else:
             return 1
 
-    except RuntimeError as exc:
-        sys.stdout.write('ERROR: ' + str(exc) + ' exception')
-        import traceback
-        traceback.print_exc()
+    except Exception as exc:
+        sys.stdout.write('Exception: ' + str(exc) + '\n')
+        # import traceback
+        # traceback.print_exc()
         return 1
 
     return 0
