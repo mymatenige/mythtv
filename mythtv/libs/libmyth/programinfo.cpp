@@ -5411,12 +5411,16 @@ void ProgramInfo::SubstituteMatches(QString &str, bool all)
         str.replace(QString("%DIR%"), dirInfo.path());
     }
 
+    // N.B. Contents of %MATCH% string variables get parsed into a single
+    // QStringLists. Quotes in strings will cause lost/truncated output.
+    // Replace QUOTATION MARK (U+0022)j with MODIFIER LETTER DOUBLE PRIME (U+02BA).
+
     if (all) str += ALL_FIELD_1(FILE).arg(GetBasename().ALL_FIELDS_ESCAPE); else
     str.replace(QString("%FILE%"), GetBasename());
-    if (all) str += ALL_FIELD_1(TITLE).arg(m_title.ALL_FIELDS_ESCAPE); else
-    str.replace(QString("%TITLE%"), m_title);
-    if (all) str += ALL_FIELD_1(SUBTITLE).arg(m_subtitle.ALL_FIELDS_ESCAPE); else
-    str.replace(QString("%SUBTITLE%"), m_subtitle);
+    if (all) str += ALL_FIELD_1(TITLE).arg(m_title.replace("\"", "ʺ").ALL_FIELDS_ESCAPE); else
+    str.replace(QString("%TITLE%"), m_title.replace("\"", "ʺ"));
+    if (all) str += ALL_FIELD_1(SUBTITLE).arg(m_subtitle.replace("\"", "ʺ").ALL_FIELDS_ESCAPE); else
+    str.replace(QString("%SUBTITLE%"), m_subtitle.replace("\"", "ʺ"));
     if (all) str += ALL_FIELD_1(SEASON).arg(QString::number(m_season).ALL_FIELDS_ESCAPE); else
     str.replace(QString("%SEASON%"), QString::number(m_season));
     if (all) str += ALL_FIELD_1(EPISODE).arg(QString::number(m_episode).ALL_FIELDS_ESCAPE); else
@@ -5425,8 +5429,8 @@ void ProgramInfo::SubstituteMatches(QString &str, bool all)
     str.replace(QString("%TOTALEPISODES%"), QString::number(m_totalEpisodes));
     if (all) str += ALL_FIELD_1(SYNDICATEDEPISODE).arg(m_syndicatedEpisode.ALL_FIELDS_ESCAPE); else
     str.replace(QString("%SYNDICATEDEPISODE%"), m_syndicatedEpisode);
-    if (all) str += ALL_FIELD_1(DESCRIPTION).arg(m_description.ALL_FIELDS_ESCAPE); else
-    str.replace(QString("%DESCRIPTION%"), m_description);
+    if (all) str += ALL_FIELD_1(DESCRIPTION).arg(m_description.replace("\"", "ʺ").ALL_FIELDS_ESCAPE); else
+    str.replace(QString("%DESCRIPTION%"), m_description.replace("\"", "ʺ"));
     if (all) str += ALL_FIELD_1(HOSTNAME).arg(m_hostname.ALL_FIELDS_ESCAPE); else
     str.replace(QString("%HOSTNAME%"), m_hostname);
     if (all) str += ALL_FIELD_1(CATEGORY).arg(m_category.ALL_FIELDS_ESCAPE); else
