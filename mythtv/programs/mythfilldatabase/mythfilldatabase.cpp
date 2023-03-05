@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
 
     if (from_file)
     {
-        QString status = QObject::tr("currently running.");
+        QString status = QObject::tr("Running.");
         QDateTime GuideDataBefore;
         QDateTime GuideDataAfter;
 
@@ -325,9 +325,7 @@ int main(int argc, char *argv[])
 
         if (GuideDataAfter == GuideDataBefore)
         {
-            status = QObject::tr("mythfilldatabase ran, but did not insert "
-                    "any new data into the Guide.  This can indicate a "
-                    "potential problem with the XML file used for the update.");
+            status = QObject::tr("No new data.");
         }
         else
         {
