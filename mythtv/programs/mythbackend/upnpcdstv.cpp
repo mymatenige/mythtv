@@ -1040,6 +1040,26 @@ bool UPnpCDSTv::LoadRecordings(const UPnpCDSRequest* pRequest,
         int            nVideoHeight = query.value(34).toInt();
         QString        sContainer   = query.value(35).toString();
 
+        // Hack for Portable SDK for UPnP devices/1.6.19 in VLC
+        if (pRequest->m_eClient == CDS_ClientPUPnP && pRequest->m_nClientVersion <= 1.6)
+        {
+            LOG(VB_UPNP, LOG_DEBUG, "Amending title; CDS_ClientPUPnP <= v1.6");
+
+            if (!sSubtitle.isEmpty())
+            {
+                sTitle = sTitle + ": " + sSubtitle;
+            }
+            else if (!sDescription.isEmpty())
+            {
+                sTitle = sTitle + ": " + sDescription;
+            }
+
+            if (sTitle.length() > 128)
+            {
+                sTitle = sTitle.left(124).append(" ...");
+            }
+        }
+
         // ----------------------------------------------------------------------
         // Cache Host ip Address & Port
         // ----------------------------------------------------------------------
@@ -1150,7 +1170,16 @@ bool UPnpCDSTv::LoadRecordings(const UPnpCDSRequest* pRequest,
             pItem->SetPropValue( "programID", sProgramId, sIdType );
         }
 
-        pItem->SetPropValue( "date"          , UPnPDateTime::DateTimeFormat(dtStartTime));
+        // Hack for Portable SDK for UPnP devices/1.6.19 in VLC
+        if (pRequest->m_eClient == CDS_ClientPUPnP && pRequest->m_nClientVersion <= 1.6)
+        {
+            pItem->SetPropValue( "date"          , UPnPDateTime::DateTimeFormat(dtStartTime).left(19).replace(10, 1, " "));
+        }
+        else
+        {
+            pItem->SetPropValue( "date"          , UPnPDateTime::DateTimeFormat(dtStartTime));
+        }
+
         pItem->SetPropValue( "creator"       , "MythTV" );
 
         // Bookmark support

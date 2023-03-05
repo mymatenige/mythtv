@@ -1422,6 +1422,25 @@ void HTTPRequest::ProcessRequestLine( const QString &sLine )
         {
             m_sOriginalUrl = tokens[1].toUtf8(); // Used by authorization check
             m_sRequestUrl = QUrl::fromPercentEncoding(tokens[1].toUtf8());
+
+            // Hack for Portable SDK for UPnP devices/1.6.19 in VLC
+            if (m_sRequestUrl.startsWith("/CDS_Controlsc"))
+            {
+                LOG(VB_UPNP, LOG_DEBUG, QString("RequestUrl <- %1").arg(m_sRequestUrl));
+                m_sRequestUrl.remove(12, 2); // "/CDS_Control"
+                LOG(VB_UPNP, LOG_DEBUG, QString("RequestUrl -> %1").arg(m_sRequestUrl));
+            }
+            else if (m_sRequestUrl.startsWith("/CDS_EventDesc"))
+            {
+                LOG(VB_UPNP, LOG_DEBUG, QString("RequestUrl <- %1").arg(m_sRequestUrl));
+                m_sRequestUrl.remove(10, 4); // "/CDS_Event"
+                LOG(VB_UPNP, LOG_DEBUG, QString("RequestUrl -> %1").arg(m_sRequestUrl));
+            }
+            else
+            {
+                LOG(VB_UPNP, LOG_DEBUG, QString("RequestUrl == %1").arg(m_sRequestUrl));
+            }
+
             m_sBaseUrl = m_sRequestUrl.section( '?', 0, 0).trimmed();
 
             m_sResourceUrl = m_sBaseUrl; // Save complete url without parameters
@@ -1579,6 +1598,18 @@ void HTTPRequest::ExtractMethodFromURL()
     {
         m_sMethod = sList.last();
         sList.pop_back();
+
+        // Hack for Portable SDK for UPnP devices/1.6.19 in VLC
+        if (m_sMethod.startsWith("CDS_EventDesc"))
+        {
+            LOG(VB_UPNP, LOG_DEBUG, QString("Method <- %1").arg(m_sMethod));
+            m_sMethod.remove(9, 4); // "CDS_Event";
+            LOG(VB_UPNP, LOG_DEBUG, QString("Method -> %1").arg(m_sMethod));
+        }
+        else
+        {
+            LOG(VB_UPNP, LOG_DEBUG, QString("Method == %1").arg(m_sMethod));
+        }
     }
 
     m_sBaseUrl = '/' + sList.join( "/" );

@@ -58,6 +58,8 @@ enum UPnpCDSClient
     CDS_ClientMP101           = 3,      // Netgear MP101
     CDS_ClientXBox            = 4,      // XBox 360
     CDS_ClientSonyDB          = 5,      // Sony Blu-ray players
+    // Hack for Portable SDK for UPnP devices/1.6.19 in VLC
+    CDS_ClientPUPnP           = 6,      // Portable SDK for UPnP devices
 };
 
 struct UPnpCDSClientException
