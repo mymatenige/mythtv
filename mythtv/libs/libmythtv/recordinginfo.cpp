@@ -21,6 +21,10 @@
 
 #define LOC      QString("RecordingInfo(%1): ").arg(GetBasename())
 
+#define ALL_FIELDS_ESCAPE replace("'", "'\"'\"'")
+#define ALL_FIELD_1(FIELD) QString(" '"#FIELD"=%1'")
+#define ALL_FIELD_2(FIELD) QString(" '%1"#FIELD"=%2'")
+
 const QRegularExpression RecordingInfo::kReSearchTypeName { R"(\s*\(.*\)$)" };
 const QRegularExpression RecordingInfo::kReLeadingAnd
         { R"(^\s*AND\s*)", QRegularExpression::CaseInsensitiveOption };
@@ -1665,19 +1669,28 @@ void RecordingInfo::SetDupHistory(void)
 /**
  *  \brief Replace %MATCH% vars in the specified string
  *  \param str QString containing matches to be substituted
+ *  \param all Whether to include all fields
  */
-void RecordingInfo::SubstituteMatches(QString &str)
+void RecordingInfo::SubstituteMatches(QString &str, bool all)
 {
+    if (all) str += ALL_FIELD_1(RECID).arg(QString::number(getRecordID()).ALL_FIELDS_ESCAPE); else
     str.replace("%RECID%", QString::number(getRecordID()));
+    if (all) str += ALL_FIELD_1(PARENTID).arg(QString::number(m_parentId).ALL_FIELDS_ESCAPE); else
     str.replace("%PARENTID%", QString::number(m_parentId));
+    if (all) str += ALL_FIELD_1(FINDID).arg(QString::number(m_findId).ALL_FIELDS_ESCAPE); else
     str.replace("%FINDID%", QString::number(m_findId));
+    if (all) str += ALL_FIELD_1(RECSTATUS).arg(QString::number(m_recStatus).ALL_FIELDS_ESCAPE); else
     str.replace("%RECSTATUS%", QString::number(m_recStatus));
+    if (all) str += ALL_FIELD_1(RECTYPE).arg(QString::number(m_recType).ALL_FIELDS_ESCAPE); else
     str.replace("%RECTYPE%", QString::number(m_recType));
+    if (all) str += ALL_FIELD_1(REACTIVATE).arg(QString(IsReactivated() ? "1" : "0").ALL_FIELDS_ESCAPE); else
     str.replace("%REACTIVATE%", IsReactivated() ? "1" : "0");
+    if (all) str += ALL_FIELD_1(INPUTNAME).arg(GetInputName().ALL_FIELDS_ESCAPE); else
     str.replace("%INPUTNAME%", GetInputName());
+    if (all) str += ALL_FIELD_1(CHANNUM).arg(GetChanNum().ALL_FIELDS_ESCAPE); else
     str.replace("%CHANNUM%", GetChanNum());
 
-    ProgramInfo::SubstituteMatches(str);
+    ProgramInfo::SubstituteMatches(str, all);
 }
 
 /**

@@ -278,7 +278,7 @@ bool UPnpCDS::ProcessRequest( HTTPRequest *pRequest )
     return false;
 }
 
-static const std::array<const UPnpCDSClientException,5> clientExceptions {{
+static const std::array<const UPnpCDSClientException,6> clientExceptions {{
     // Windows Media Player version 12
     { CDS_ClientWMP, 
       "User-Agent",
@@ -299,6 +299,11 @@ static const std::array<const UPnpCDSClientException,5> clientExceptions {{
     { CDS_ClientSonyDB,
       "X-AV-Client-Info",
       R"(cn="Sony Corporation"; mn="Blu-ray Disc Player")" },
+    // Hack for Portable SDK for UPnP devices/1.6.19 in VLC
+    // Portable SDK for UPnP devices
+    { CDS_ClientPUPnP,
+      "User-Agent",
+      "Portable SDK for UPnP devices/" },
 }};
 
 void UPnpCDS::DetermineClient( HTTPRequest *pRequest,
