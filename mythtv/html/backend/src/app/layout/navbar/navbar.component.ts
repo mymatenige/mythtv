@@ -36,13 +36,13 @@ export class NavbarComponent implements OnInit {
         private router: Router) {
         this.themeService.getThemes().then((themes: Theme[]) => {
             this.m_themes$ = themes;
-            this.m_selectedTheme = this.findThemeByName(localStorage.getItem('Theme') || 'Indigo Light');
+            this.m_selectedTheme = this.findThemeByName(localStorage.getItem('Theme') || 'Blue Dark');
             this.themeService.switchTheme(this.m_selectedTheme.CSS);
         });
 
         this.configService.GetLanguages().subscribe((data: MythLanguageList) => {
             this.m_languages = data.LanguageList.Languages;
-            this.m_selectedLanguage = this.findLanguageByCode(localStorage.getItem('Language') || 'en_US');
+            this.m_selectedLanguage = this.findLanguageByCode(localStorage.getItem('Language') || 'en_GB');
         })
 
         this.mythService.GetBackendInfo()
@@ -53,7 +53,7 @@ export class NavbarComponent implements OnInit {
                         || (!data.BackendInfo.Env.SchedulingEnabled && !url.startsWith('/setupwizard/')))
                         router.navigate(['setupwizard/dbsetup']);
                     else if (url == '/')
-                        router.navigate(['dashboard/status']);
+                        router.navigate(['dashboard/recordings']);
                 });
 
     }

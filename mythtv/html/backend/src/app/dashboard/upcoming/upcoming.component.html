@@ -70,9 +70,11 @@
                             <button pButton pRipple icon="pi pi-paperclip" [disabled]="true"
                                 class="p-button-text p-button-primary"></button>
                         </th>
+<!--
                         <th style="flex-basis: 2%" class="p-1"> <button pButton pRipple icon="pi pi-pencil"
                                 [disabled]="true" class="p-button-text p-button-primary"></button>
                         </th>
+-->
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-program>
@@ -119,12 +121,14 @@
                                     tooltipPosition="left"></button>
                             </ng-template>
                         </td>
+<!--
                         <td style="flex-basis: 2%" class="p-1">
                             <button pButton pRipple icon="pi pi-pencil" class="p-button-text p-button-primary"
                                 (click)="updateRecRule(program)"
                                 pTooltip="{{ 'dashboard.recordings.edit_rule' | translate }}" tooltipPosition="left"
                                 [disabled]="program.Recording && program.Recording.RecType == 7"></button>
                         </td>
+-->
                     </tr>
                 </ng-template>
             </p-table>
