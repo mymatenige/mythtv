@@ -164,13 +164,13 @@ export class RecordingsComponent implements OnInit {
       if (event.filters.Title.value) {
         switch (event.filters.Title.matchMode) {
           case FilterMatchMode.STARTS_WITH:
-            request.TitleRegEx = '^' + event.filters.Title.value;
+            request.TitleRegEx = '^' + event.filters.Title.value.trim();
             break;
           case FilterMatchMode.CONTAINS:
-            request.TitleRegEx = event.filters.Title.value;
+            request.TitleRegEx = event.filters.Title.value.trim();
             break;
           case FilterMatchMode.EQUALS:
-            request.TitleRegEx = '^' + event.filters.Title.value + '$';
+            request.TitleRegEx = '^' + event.filters.Title.value.trim() + '$';
             break;
         }
       }
