@@ -178,7 +178,7 @@ bool FillData::GrabData(const DataSource& source, int offset)
             QString("Using graboptions: %1").arg(m_grabOptions));
     }
 
-    QString status = QObject::tr("currently running.");
+    QString status = QObject::tr("Running.");
 
     updateLastRunStart();
     updateLastRunStatus(status);
@@ -214,13 +214,13 @@ bool FillData::GrabData(const DataSource& source, int offset)
         if (systemcall_status == GENERIC_EXIT_KILLED)
         {
             m_interrupted = true;
-            status = QObject::tr("FAILED: XMLTV grabber ran but was interrupted.");
+            status = QObject::tr("Interrupted.");
             LOG(VB_GENERAL, LOG_ERR,
                 QString("XMLTV grabber ran but was interrupted."));
         }
         else
         {
-            status = QObject::tr("FAILED: XMLTV grabber returned error code %1.")
+            status = QObject::tr("Failed with error code: %1.")
                             .arg(systemcall_status);
             LOG(VB_GENERAL, LOG_ERR,
                 QString("XMLTV grabber returned error code %1")
@@ -720,12 +720,7 @@ bool FillData::Run(DataSourceList &sourcelist)
         if (nonewdata > 0 &&
             (total_sources != externally_handled))
         {
-            status = QObject::tr(
-                     "mythfilldatabase ran, but did not insert "
-                     "any new data into the Guide for %1 of %2 sources. "
-                     "This can indicate a potential grabber failure.")
-                     .arg(nonewdata)
-                     .arg(total_sources);
+            status = QObject::tr("No new data.");
         }
         else
         {

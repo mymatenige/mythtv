@@ -17,6 +17,10 @@
 
 #define LOC      QString("MythSystemEventHandler: ")
 
+#define ALL_FIELDS_ESCAPE replace("'", "'\"'\"'")
+#define ALL_FIELD_1(FIELD) QString(" '"#FIELD"=%1'")
+#define ALL_FIELD_2(FIELD) QString(" '%1"#FIELD"=%2'")
+
 /** \class SystemEventThread
  *  \brief QRunnable class for running MythSystemEvent handler commands
  *
@@ -91,9 +95,9 @@ MythSystemEventHandler::~MythSystemEventHandler()
 }
 
 /** \fn MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
-                                                  QString &command)
+                                                  QString &command, bool all)
  *  \brief Substitutes %MATCH% variables in given command line.
- *  \sa ProgramInfo::SubstituteMatches(QString &str)
+ *  \sa ProgramInfo::SubstituteMatches(QString &str, bool all)
  *
  *  Subsitutes values for %MATCH% type variables in given command string.
  *  Some of these matches come from the tokens list passed in and some
@@ -102,9 +106,10 @@ MythSystemEventHandler::~MythSystemEventHandler()
  *
  *  \param tokens  Const QStringList containing token list passed with event.
  *  \param command Command line containing %MATCH% variables to be substituted.
+ *  \param all Whether to include all fields
  */
 void MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
-                                               QString &command)
+                                               QString &command, bool all)
 {
     if (command.isEmpty())
         return;
@@ -117,6 +122,7 @@ void MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
 
     QStringList::const_iterator it = tokens.begin();
     ++it;
+    if (all) command += ALL_FIELD_1(EVENTNAME).arg(QString(*it).ALL_FIELDS_ESCAPE); else
     command.replace(QString("%EVENTNAME%"), *it);
 
     ++it;
@@ -145,10 +151,13 @@ void MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
 
             // The following string is broken up on purpose to indicate
             // what we're replacing is the token surrounded by percent signs
+            if (all) command += ALL_FIELD_2().arg(token.ALL_FIELDS_ESCAPE, QString(*it).ALL_FIELDS_ESCAPE); else
             command.replace(QString("%" "%1" "%").arg(token), *it);
 
+            if (!all)
             if (!args.isEmpty())
                 args += " ";
+            if (all) args += QString("=%1").arg(*it); else
             args += *it;
         }
 
@@ -161,8 +170,10 @@ void MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
 
             chanid = (*it).toUInt();
 
+            if (!all)
             if (!args.isEmpty())
                 args += " ";
+            if (all) args += QString("=%1").arg(*it); else
             args += *it;
         }
 
@@ -173,41 +184,52 @@ void MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
 
             recstartts = MythDate::fromString(*it);
 
+            if (!all)
             if (!args.isEmpty())
                 args += " ";
+            if (all) args += QString("=%1").arg(*it); else
             args += *it;
         }
 
         ++it;
     }
 
+    if (all) command += ALL_FIELD_1(ARGS).arg(args.ALL_FIELDS_ESCAPE); else
     command.replace(QString("%ARGS%"), args);
 
     // 1st, try loading RecordingInfo / ProgramInfo
     RecordingInfo recinfo(chanid, recstartts);
     bool loaded = recinfo.GetChanID() != 0U;
     if (loaded)
-        recinfo.SubstituteMatches(command);
+        recinfo.SubstituteMatches(command, all);
     else
     {
         // 2rd Try searching for RecordingInfo
         RecordingInfo::LoadStatus status = RecordingInfo::kNoProgram;
         RecordingInfo recinfo2(chanid, recstartts, false, 0h, &status);
         if (status == RecordingInfo::kFoundProgram)
-            recinfo2.SubstituteMatches(command);
+            recinfo2.SubstituteMatches(command, all);
         else
         {
             // 3th just use what we know
+            if (all) command += ALL_FIELD_1(CHANID).arg(QString::number(chanid).ALL_FIELDS_ESCAPE); else
             command.replace(QString("%CHANID%"), QString::number(chanid));
+            if (all) command += ALL_FIELD_1(STARTTIME).arg(
+                            MythDate::toString(recstartts,
+                                               MythDate::kFilename).ALL_FIELDS_ESCAPE); else
             command.replace(QString("%STARTTIME%"),
                             MythDate::toString(recstartts,
                                                MythDate::kFilename));
+            if (all) command += ALL_FIELD_1(STARTTIMEISO).arg(
+                            recstartts.toString(Qt::ISODate).ALL_FIELDS_ESCAPE); else
             command.replace(QString("%STARTTIMEISO%"),
                             recstartts.toString(Qt::ISODate));
         }
     }
 
+    if (all) command += ALL_FIELD_1(VERBOSELEVEL).arg(QString("%1").arg(verboseMask).ALL_FIELDS_ESCAPE); else
     command.replace(QString("%VERBOSELEVEL%"), QString("%1").arg(verboseMask));
+    if (all) command += ALL_FIELD_1(VERBOSEMODE).arg(QString("%1").arg(logPropagateArgs).ALL_FIELDS_ESCAPE); else
     command.replace("%VERBOSEMODE%", QString("%1").arg(logPropagateArgs));
 
     LOG(VB_FILE, LOG_DEBUG, LOC + QString("SubstituteMatches: AFTER : %1")
@@ -239,7 +261,7 @@ QString MythSystemEventHandler::EventNameToSetting(const QString &name)
 /** \fn MythSystemEventHandler::customEvent(QEvent *e)
  *  \brief Custom Event handler for receiving and processing System Events
  *  \sa MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
-                                                  QString &command)
+                                                  QString &command, bool all)
  *      MythSystemEventHandler::EventNameToSetting(const QString &name)
  *
  *  This function listens for SYSTEM_EVENT messages and fires off any
@@ -293,6 +315,17 @@ void MythSystemEventHandler::customEvent(QEvent *e)
             SubstituteMatches(tokens, cmd);
 
             auto *eventThread = new SystemEventThread(cmd);
+            MThreadPool::globalInstance()->startReserved(
+                eventThread, "SystemEvent");
+        }
+
+        // See if this system has a command that runs for all system events with all fields
+        cmd = gCoreContext->GetSetting("EventCmdAllFields");
+        if (!cmd.isEmpty())
+        {
+            SubstituteMatches(tokens, cmd, true);
+
+            SystemEventThread *eventThread = new SystemEventThread(cmd, "EventCmdAllFields");
             MThreadPool::globalInstance()->startReserved(
                 eventThread, "SystemEvent");
         }
