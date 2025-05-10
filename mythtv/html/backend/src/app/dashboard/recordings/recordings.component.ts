@@ -165,8 +165,10 @@ export class RecordingsComponent implements OnInit {
       sortField = event.sortField[0];
     else if (event.sortField)
       sortField = event.sortField;
-    if (!sortField)
-      sortField = 'Title';
+    if (!sortField) {
+      sortField = 'StartTime';
+      event.sortOrder = -1;
+    }
     request.Sort = sortField;
     if (sortField == 'Airdate')
       request.Sort = 'originalairdate';
