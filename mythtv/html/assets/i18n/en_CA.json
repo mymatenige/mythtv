@@ -410,9 +410,11 @@
         },
         "undefselection": "Some selected rows have not been loaded. Please scroll through the list and re-select the rows.",
         "upcoming": {
+            "actionsselected": "Actions on {{ num }} Selected Upcoming Recordings",
             "date": "Date",
             "encoder": "Encoder",
             "heading": "Upcoming",
+            "mnu_dontrec": "Don't Record",
             "recrule": "Recording Rule",
             "restart_err": "ERROR: Unable to Restart Recording.",
             "showall": "All Status Values",

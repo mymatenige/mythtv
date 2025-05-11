@@ -5,37 +5,47 @@
     <h2>{{ 'dashboard.upcoming.heading' | translate }}</h2>
     <div class="block card w-full">
         <div style="height: 90vh">
+
+            <p-menu #menu [popup]="true" [model]="menuToShow" class="font-bold">
+            </p-menu>
+
+            <!-- Menu, Refresh button and number of rows. -->
+            <div class="flex align-items-center p-1 font-bold">
+                <button pButton pRipple icon="pi pi-bars" class="p-button-text .p-button-success"
+                    (click)="showContextMenu(null, $event)" pTooltip="{{ 'common.selected_menu' | translate }}"
+                    tooltipPosition="top"></button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                <div class="flex align-items-center">
+                    {{ 'dashboard.upcoming.status' | translate }}: &nbsp;
+                    <p-dropdown [(ngModel)]="selectedStatus" [options]="dataService.recStatusList"
+                        optionLabel="Name" optionValue="Status" name="Statusfilter" (onChange)="onFilter()"
+                        placeholder="{{ 'data.recstatus.Default' | translate }}" [showClear]="true" class="'px-3">
+                    </p-dropdown>
+
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    {{ 'dashboard.upcoming.recrule' | translate }}: &nbsp;
+                    <p-dropdown [(ngModel)]="selectedRule" [options]="recRules" name="rulefilter"
+                        (onChange)="onFilter()" optionLabel="Title"
+                        placeholder="{{ 'settings.chanedit.all' | translate }}" [showClear]="true" class="'px-3">
+                    </p-dropdown>
+
+                    <!-- Refresh button and number of rows. -->
+                    <div *ngIf="refreshing else refreshBn"><p-progressSpinner
+                            [style]="{width: '2rem', height: '2rem'}"></p-progressSpinner></div>
+                    <ng-template #refreshBn>
+                        <button pButton pRipple icon="pi pi-refresh" class="p-button-text .p-button-success"
+                            (click)="refresh()" pTooltip="{{ 'common.refresh' | translate }}"></button>
+                        &nbsp;&nbsp;&nbsp;{{ programs.length }} {{ 'common.rows' | translate }}
+                    </ng-template>
+                </div>
+
+            </div>
+
             <p-table #table *ngIf="showTable" [value]="programs" scrollHeight="flex" [scrollable]="true"
                 [totalRecords]="totalRecords" styleClass="p-datatable-gridlines p-datatable-sm" [virtualScroll]="true"
-                [rows]="100" [lazy]="true" (onLazyLoad)="loadLazy($event)" [rowHover]="true" sortField="StartTime">
-
-                <ng-template pTemplate="caption">
-                    <!-- Top Buttons -->
-                    <div class="flex align-items-center">
-
-                        {{ 'dashboard.upcoming.status' | translate }}: &nbsp;
-                        <p-dropdown [(ngModel)]="selectedStatus" [options]="dataService.recStatusList"
-                            optionLabel="Name" optionValue="Status" name="Statusfilter" (onChange)="onFilter()"
-                            placeholder="{{ 'data.recstatus.Default' | translate }}" [showClear]="true" class="'px-3">
-                        </p-dropdown>
-
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        {{ 'dashboard.upcoming.recrule' | translate }}: &nbsp;
-                        <p-dropdown [(ngModel)]="selectedRule" [options]="recRules" name="rulefilter"
-                            (onChange)="onFilter()" optionLabel="Title"
-                            placeholder="{{ 'settings.chanedit.all' | translate }}" [showClear]="true" class="'px-3">
-                        </p-dropdown>
-
-                        <!-- Refresh button and number of rows. -->
-                        <div *ngIf="refreshing else refreshBn"><p-progressSpinner
-                                [style]="{width: '2rem', height: '2rem'}"></p-progressSpinner></div>
-                        <ng-template #refreshBn>
-                            <button pButton pRipple icon="pi pi-refresh" class="p-button-text .p-button-success"
-                                (click)="refresh()" pTooltip="{{ 'common.refresh' | translate }}"></button>
-                            &nbsp;&nbsp;&nbsp;{{ programs.length }} {{ 'common.rows' | translate }}
-                        </ng-template>
-                    </div>
-                </ng-template>
+                [rows]="100" [lazy]="true" (onLazyLoad)="loadLazy($event)" [rowHover]="true" sortField="StartTime"
+                selectionMode="multiple" [metaKeySelection]="true" [(selection)]="selection"
+                (onRowSelect)="onSelectChange()" (onRowUnselect)="onSelectChange()">
 
                 <ng-template pTemplate="header">
                     <tr>
@@ -71,11 +81,15 @@
                             <button pButton pRipple icon="pi pi-pencil" [disabled]="true"
                                 class="p-button-text p-button-primary"></button>
                         </th>
+                        <th style="width: 5%; white-space: nowrap; background: var(--surface-card);" class="p-1">
+                            <button pButton pRipple icon="pi pi-ellipsis-v" class="p-button-text p-button-primary"
+                                [disabled]="true"></button>
+                        </th>
                     </tr>
                 </ng-template>
 
                 <ng-template pTemplate="body" let-program let-rowIndex="rowIndex">
-                    <tr #row>
+                    <tr #row [pSelectableRow]="program" [pSelectableRowIndex]="rowIndex">
                         <td class="p-1 overflow-hidden">
                             <div class="mycell">
                                 <div class="mytext" [innerHTML]="formatStartDate(program, rowIndex)"></div>
@@ -154,6 +168,11 @@
                                 pTooltip="{{ 'dashboard.recordings.edit_rule' | translate }}" tooltipPosition="left"
                                 [disabled]="program.Recording && (program.Recording.RecType == 7 || program.Recording.RecType == 8
                                     || program.Recording.StatusName == 'NeverRecord')"></button>
+                        </td>
+                        <td class="pt-1 pb-0" style="background: var(--surface-card); white-space: nowrap;">
+                            <button pButton pRipple icon="pi pi-ellipsis-v" class="p-button-text p-button-primary"
+                                [disabled]="program.Recording && program.Recording.StatusName != 'WillRecord'"
+                                (click)="showContextMenu(program,$event)"></button>
                         </td>
                     </tr>
                 </ng-template>

@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Table, TableLazyLoadEvent } from 'primeng/table';
 import { ScheduleLink, SchedulerSummary } from 'src/app/schedule/schedule.component';
 import { DataService } from 'src/app/services/data.service';
@@ -9,6 +9,7 @@ import { GetUpcomingRequest } from 'src/app/services/interfaces/dvr.interface';
 import { ScheduleOrProgram } from 'src/app/services/interfaces/program.interface';
 import { RecRule } from 'src/app/services/interfaces/recording.interface';
 import { UtilityService } from 'src/app/services/utility.service';
+import { Menu } from 'primeng/menu';
 
 interface RuleListEntry {
   Id: number;
@@ -26,13 +27,15 @@ export class UpcomingComponent implements OnInit, SchedulerSummary {
 
   @ViewChild('table') table!: Table;
   @ViewChildren('row') rows!: QueryList<ElementRef>;
+  @ViewChild("menu") menu!: Menu;
 
   programs: ScheduleOrProgram[] = [];
+  selection: ScheduleOrProgram[] = [];
+  actionList: ScheduleOrProgram[] = [];
   recRules: RuleListEntry[] = [];
   allRecRules: RuleListEntry[] = [];
   activeRecRules: RuleListEntry[] = [];
   defaultRecRule: RuleListEntry = { Id: 0, Title: 'settings.chanedit.all' };
-  restartErrMsg = 'dashboard.upcoming.restart_err';
   editingProgram?: ScheduleOrProgram;
   displayUpdateDlg = false;
   refreshing = false;
@@ -49,11 +52,40 @@ export class UpcomingComponent implements OnInit, SchedulerSummary {
   selectedRule: RuleListEntry | null = null;
   selectedStatus = '';
 
+  msg = {
+    Success: 'common.success',
+    Failed: 'common.failed',
+    NetFail: 'common.networkfail',
+    ActionsSelected: 'dashboard.upcoming.actionsselected',
+    RestartError: 'dashboard.upcoming.restart_err',
+    UndefSelection: 'dashboard.undefselection'
+  }
+
+  // Menu Items
+  mnu_dontrec: MenuItem = { label: 'dashboard.upcoming.mnu_dontrec', command: (event) => this.editUpcoming(event, false) };
+  mnu_norec: MenuItem = { label: 'dashboard.prevrecs.mnu_norec', command: (event) => this.editUpcoming(event, true) };
+
+  menuToShow: MenuItem[] = [];
+
   constructor(private dvrService: DvrService, private messageService: MessageService,
     private translate: TranslateService, public dataService: DataService,
     private utility: UtilityService) {
     this.translate.get(this.defaultRecRule.Title).subscribe(data => this.defaultRecRule.Title = data);
-    this.translate.get(this.restartErrMsg).subscribe(data => this.restartErrMsg = data);
+
+    // translations
+    for (const [key, value] of Object.entries(this.msg)) {
+      this.translate.get(value).subscribe(data => {
+        Object.defineProperty(this.msg, key, { value: data });
+      });
+    }
+    const mnu_entries = [this.mnu_dontrec, this.mnu_norec];
+    mnu_entries.forEach(entry => {
+      if (entry.label)
+        this.translate.get(entry.label).subscribe(data =>
+          entry.label = data
+        );
+    });
+
     this.loadRecRules();
   }
 
@@ -242,28 +274,35 @@ export class UpcomingComponent implements OnInit, SchedulerSummary {
           else {
             this.errorCount++;
             console.log("Error: dvrService.ReactivateRecording returned false");
-            this.sendMessage(this.restartErrMsg);
+            this.sendMessage('error', null, '', this.msg.RestartError);
           }
         },
         error: (err) => {
           this.errorCount++;
           console.log("Error: dvrService.ReactivateRecording returned http error");
-          this.sendMessage(this.restartErrMsg);
+          this.sendMessage('error', null, '', this.msg.RestartError);
         }
       });
     }
     else {
       console.log("Error: there is no RecordId for the entry");
-      this.sendMessage(this.restartErrMsg);
+      this.sendMessage('error', null, '', this.msg.RestartError);
     }
   }
 
-  sendMessage(text: string) {
+  sendMessage(severity: string, program: ScheduleOrProgram | null, action: string, text: string, extraText?: string) {
+    if (extraText)
+      extraText = '\n' + extraText;
+    else
+      extraText = '';
+    let detail = action;
+    if (program != null)
+      detail = action + ' ' + program.Title + ' ' + program.SubTitle + extraText;
     this.messageService.add({
-      severity: 'error', summary: this.program?.Title,
-      detail: text,
+      severity: severity, summary: text,
+      detail: detail,
       life: 5000,
-      sticky: true
+      sticky: (severity == 'error')
     });
   }
 
@@ -283,6 +322,88 @@ export class UpcomingComponent implements OnInit, SchedulerSummary {
           this.errorCount++;
         }
       });
+  }
+
+  // return true causes default browser right click menu to show
+  // return false suppresses default browser right click menu
+  onContextMenu(program: ScheduleOrProgram, event: any) {
+    if (this.selection.length == 0)
+      return true;
+    if (this.selection.some((x) => !x)) {
+      // This happens if some entries have not been loaded
+      this.sendMessage('error', null, '', this.msg.UndefSelection);
+      return false;
+    }
+    if (this.selection.some((x) => x.Recording.RecordedId == program.Recording.RecordedId)) {
+      this.showContextMenu(null, event);
+      return false;
+    }
+    return true;
+  }
+
+  onSelectChange() {
+    this.menu.hide();
+  }
+
+  showContextMenu(program: ScheduleOrProgram | null, event: any) {
+    this.actionList.length = 0;
+    if (program && program.Title)
+      this.actionList.push(program);
+    else
+      this.actionList.push(...this.selection);
+    if (this.actionList.length == 0)
+      return;
+    if (this.actionList.some((x) => !x)) {
+      this.sendMessage('error', null, '', this.msg.UndefSelection);
+      return;
+    }
+    this.menuToShow.length = 0;
+    let subMenu: MenuItem[] = [];
+    if (this.actionList.some((x) => x.Recording.StatusName == 'WillRecord')) {
+      subMenu.push(this.mnu_dontrec);
+      subMenu.push(this.mnu_norec);
+
+      if (this.actionList.length == 1) {
+        this.menuToShow.push({ label: this.actionList[0].Title + ' - ' + this.actionList[0].SubTitle, items: subMenu });
+      }
+      else
+        this.menuToShow.push({ label: this.msg.ActionsSelected.replace(/{{ *num *}}/, this.actionList.length.toString()), items: subMenu });
+    }
+
+    // Notify Angular that menu has changed
+    this.menuToShow = [...this.menuToShow];
+    this.menu.toggle(event);
+  }
+
+  editUpcoming(event: any, never: boolean) {
+    let program = <ScheduleOrProgram>this.actionList.shift();
+    if (program) {
+      this.dvrService.AddDontRecordSchedule({
+        ChanId: program.Channel.ChanId,
+        StartTime: program.StartTime,
+        NeverRecord: never
+      }).subscribe({
+        next: (x) => {
+          if (x.bool)
+            this.sendMessage('success', program, event.item.label, this.msg.Success);
+          else
+            this.sendMessage('error', program, event.item.label, this.msg.Failed);
+          this.editUpcoming(event, never);
+        },
+        error: (err: any) => {
+          this.networkError(program, err);
+          this.editUpcoming(event, never);
+        }
+      });
+    }
+    else {
+      setTimeout( () => this.refresh(), 1000 );
+    }
+  }
+
+  networkError(program: ScheduleOrProgram, err: any) {
+    console.log("network error", err);
+    this.sendMessage('error', program, '', this.msg.NetFail);
   }
 
 }
