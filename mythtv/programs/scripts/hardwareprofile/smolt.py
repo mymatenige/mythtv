@@ -695,7 +695,12 @@ class _HardwareProfile:
             error(_('Error contacting Server (tokens): {}'.format(e)))
             self.session.close()
             return (1, None, None)
-        tok_obj = token.json()
+        try:
+            tok_obj = token.json()
+        except requests.exceptions.JSONDecodeError:
+            self.session.close()
+            error(_('Something went wrong decoding a token'))
+            return (1, None, None)
         try:
             if tok_obj['prefered_protocol'] in supported_protocols:
                 prefered_protocol = tok_obj['prefered_protocol']
@@ -708,6 +713,7 @@ class _HardwareProfile:
         except ValueError as e:
             self.session.close()
             error(_('Something went wrong fetching a token'))
+            return (1, None, None)
 
         send_host_obj = self.get_submission_data(prefered_protocol)
 
