@@ -249,7 +249,7 @@ class get_os_info(metaclass=OSInfoType):
     def suselinux(self, text):
         import re
         text = text.split('\n')[0].strip()
-        return re.sub('\(\w*\)$', '', text)
+        return re.sub(r'\(\w*\)$', '', text)
 
     yellowdog   = OSWithFile('/etc/yellowdog-release')
     redhat      = OSWithFile('/etc/redhat-release')

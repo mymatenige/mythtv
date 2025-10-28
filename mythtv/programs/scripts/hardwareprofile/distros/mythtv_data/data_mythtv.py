@@ -384,7 +384,7 @@ class _Mythtv_data(object):
         data.place_avg = 0
         data.place_stddev = 0
 
-        r = re.compile('Scheduled ([0-9]*) items in [0-9.]* = ([0-9.]*) match \+ ([0-9.]*) place')
+        r = re.compile(r'Scheduled ([0-9]*) items in [0-9.]* = ([0-9.]*) match \+ ([0-9.]*) place')
         data = OrdDict()
 
         c = _DB.cursor()
