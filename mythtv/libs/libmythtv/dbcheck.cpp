@@ -409,6 +409,15 @@ bool UpgradeTVDatabaseSchema(const bool upgradeAllowed,
 
 static bool tryUpgradeTVDatabaseSchema(bool upgradeAllowed, bool upgradeIfNoUI, bool informSystemd)
 {
+    // Fix bad upgrade
+    // In commit 08a7b58a73 the schema was upgraded to 1385 in fixes/35
+    // This should not be done in a fixes branch.
+    QString ver = gCoreContext->GetSetting("DbSchemaVer");
+    if (ver == "1385" && currentDatabaseVersion == "1384") {
+        gCoreContext->SaveSettingOnHost("DbSchemaVer","1384", nullptr);
+        LOG(VB_GENERAL, LOG_WARNING, "Downgrading Database from version 1385 to 1384.");
+    }
+
     // Determine if an upgrade is needed
     SchemaUpgradeWizard* schema_wizard = SchemaUpgradeWizard::Get(
         "DBSchemaVer", "MythTV", currentDatabaseVersion);
@@ -1229,14 +1238,6 @@ static bool doUpgradeTVDatabaseSchema(void)
             return false;
     }
 
-    if (dbver == "1384")
-    {
-        // Add post-season baseball listings for the MLB provider.
-        DBUpdates updates = getRecordingExtenderDbInfo(3);
-        if (!performActualUpdate("MythTV", "DBSchemaVer",
-                                 updates, "1385", dbver))
-            return false;
-    }
     return true;
 }
 
@@ -3682,17 +3683,6 @@ DBUpdates getRecordingExtenderDbInfo (int version)
               (1,1000,'basketball', 'Chattanooga',  'UT-Chattanooga', 0, 'Chattanooga'),
               (1,1100,'basketball', 'UT',           'UT-', 0, 'UT ');
               )A",
-        };
-
-      case 3:
-        return {
-            // Missed post-season baseball listing titles for the MLB provider.
-
-            R"(INSERT INTO sportslisting (api,title)
-            VALUES
-              (1000, '\\A(?:MLB All-Star Game)\\z'),
-              (1000, '\\A(?:World Series)\\z');
-              )",
         };
 
       default:
