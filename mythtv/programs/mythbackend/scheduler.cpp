@@ -2834,8 +2834,6 @@ bool Scheduler::HandleRecording(
     {
         if (!AssignGroupInput(tempri, origprerollseconds))
         {
-            LOG(VB_SCHEDULE, LOG_INFO, QString("NJJ: ADD_CHILD_INPUT"));
-
             // We failed to assign an input.  Keep asking the main
             // server to add one until we get one.
             MythEvent me(QString("ADD_CHILD_INPUT %1")
