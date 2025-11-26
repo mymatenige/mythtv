@@ -295,7 +295,7 @@ bool DTVChannel::SetChannelByString(const QString &channum)
             {
                 LOG(VB_GENERAL, LOG_DEBUG, loc +
                     QString("Initialize multiplex options m_tunerType:%1 mplexid:%2")
-                        .arg(m_tunerType).arg(mplexid));
+                        .arg(static_cast<int>(m_tunerType)).arg(mplexid));
 
                 // Try to fix any problems with the multiplex
                 CheckOptions(tuning);
