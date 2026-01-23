@@ -395,7 +395,7 @@ QString createTempFile(QString name_template, bool dir)
 bool makeFileAccessible(const QString& filename)
 {
     QByteArray fname = filename.toLatin1();
-    int ret = chmod(fname.constData(), 0666);
+    int ret = chmod(fname.constData(), 0644);
     if (ret == -1)
     {
         LOG(VB_GENERAL, LOG_ERR, QString("Unable to change permissions on file. (%1)").arg(filename));
