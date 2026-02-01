@@ -320,7 +320,7 @@ class MTV_PUBLIC ProgramInfo
                        bool showrerecord = false,
                        uint star_range = 10,
                        uint date_format = 0) const;
-    virtual void SubstituteMatches(QString &str);
+    virtual void SubstituteMatches(QString &str, bool all = false);
 
     // Used for scheduling recordings
     bool IsSameProgram(const ProgramInfo &other) const; // Exact same program

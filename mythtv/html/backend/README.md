@@ -18,6 +18,9 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ## Build
 
+rm -fr node_modules
+npm install
+
 Run `npm run-script build` to build the project. The build artifacts will be stored in the `../apps/backend` directory.
 These should be committed, so that the backend web app does not need rebuilding at build time.
 

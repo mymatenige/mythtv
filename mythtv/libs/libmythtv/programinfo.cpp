@@ -32,6 +32,10 @@
 
 #define LOC      QString("ProgramInfo(%1): ").arg(GetBasename())
 
+#define ALL_FIELDS_ESCAPE replace("'", "'\"'\"'")
+#define ALL_FIELD_1(FIELD) QString(" '"#FIELD"=%1'")
+#define ALL_FIELD_2(FIELD) QString(" '%1"#FIELD"=%2'")
+
 //#define DEBUG_IN_USE
 
 static int init_tr(void);
@@ -5529,22 +5533,25 @@ QString ProgramInfo::i18n(const QString &msg)
     return (msg_arr == msg_i18n_arr) ? msg : msg_i18n;
 }
 
-/** \fn ProgramInfo::SubstituteMatches(QString &str)
+/** \fn ProgramInfo::SubstituteMatches(QString &str, bool all)
  *  \brief Subsitute %MATCH% type variable names in the given string
  *  \param str QString to substitute matches in
+ *  \param all Whether to include all fields
  *  \note This method sometimes initiates a QUERY_CHECKFILE MythProto
  *        call and so should not be called from the UI thread.
  */
-void ProgramInfo::SubstituteMatches(QString &str)
+void ProgramInfo::SubstituteMatches(QString &str, bool all)
 {
     QString pburl = GetPlaybackURL(false, true);
     if (pburl.startsWith("myth://"))
     {
+        if (all) str += ALL_FIELD_1(DIR).arg(pburl.ALL_FIELDS_ESCAPE); else
         str.replace(QString("%DIR%"), pburl);
     }
     else
     {
         QFileInfo dirInfo(pburl);
+        if (all) str += ALL_FIELD_1(DIR).arg(dirInfo.path().ALL_FIELDS_ESCAPE); else
         str.replace(QString("%DIR%"), dirInfo.path());
     }
 
@@ -5552,22 +5559,40 @@ void ProgramInfo::SubstituteMatches(QString &str)
     // QStringLists. Quotes in strings will cause lost/truncated output.
     // Replace QUOTATION MARK (U+0022)j with MODIFIER LETTER DOUBLE PRIME (U+02BA).
 
+    if (all) str += ALL_FIELD_1(FILE).arg(GetBasename().ALL_FIELDS_ESCAPE); else
     str.replace(QString("%FILE%"), GetBasename());
+    if (all) str += ALL_FIELD_1(TITLE).arg(m_title.replace("\"", "ʺ").ALL_FIELDS_ESCAPE); else
     str.replace(QString("%TITLE%"), m_title.replace("\"", "ʺ"));
+    if (all) str += ALL_FIELD_1(SUBTITLE).arg(m_subtitle.replace("\"", "ʺ").ALL_FIELDS_ESCAPE); else
     str.replace(QString("%SUBTITLE%"), m_subtitle.replace("\"", "ʺ"));
+    if (all) str += ALL_FIELD_1(SEASON).arg(QString::number(m_season).ALL_FIELDS_ESCAPE); else
     str.replace(QString("%SEASON%"), QString::number(m_season));
+    if (all) str += ALL_FIELD_1(EPISODE).arg(QString::number(m_episode).ALL_FIELDS_ESCAPE); else
     str.replace(QString("%EPISODE%"), QString::number(m_episode));
+    if (all) str += ALL_FIELD_1(TOTALEPISODES).arg(QString::number(m_totalEpisodes).ALL_FIELDS_ESCAPE); else
     str.replace(QString("%TOTALEPISODES%"), QString::number(m_totalEpisodes));
+    if (all) str += ALL_FIELD_1(SYNDICATEDEPISODE).arg(m_syndicatedEpisode.ALL_FIELDS_ESCAPE); else
     str.replace(QString("%SYNDICATEDEPISODE%"), m_syndicatedEpisode);
+    if (all) str += ALL_FIELD_1(DESCRIPTION).arg(m_description.replace("\"", "ʺ").ALL_FIELDS_ESCAPE); else
     str.replace(QString("%DESCRIPTION%"), m_description.replace("\"", "ʺ"));
+    if (all) str += ALL_FIELD_1(HOSTNAME).arg(m_hostname.ALL_FIELDS_ESCAPE); else
     str.replace(QString("%HOSTNAME%"), m_hostname);
+    if (all) str += ALL_FIELD_1(CATEGORY).arg(m_category.ALL_FIELDS_ESCAPE); else
     str.replace(QString("%CATEGORY%"), m_category);
+    if (all) str += ALL_FIELD_1(RECGROUP).arg(m_recGroup.ALL_FIELDS_ESCAPE); else
     str.replace(QString("%RECGROUP%"), m_recGroup);
+    if (all) str += ALL_FIELD_1(PLAYGROUP).arg(m_playGroup.ALL_FIELDS_ESCAPE); else
     str.replace(QString("%PLAYGROUP%"), m_playGroup);
+    if (all) str += ALL_FIELD_1(CHANID).arg(QString::number(m_chanId).ALL_FIELDS_ESCAPE); else
     str.replace(QString("%CHANID%"), QString::number(m_chanId));
+    if (all) str += ALL_FIELD_1(INETREF).arg(m_inetRef.ALL_FIELDS_ESCAPE); else
     str.replace(QString("%INETREF%"), m_inetRef);
+    if (all) str += ALL_FIELD_1(PARTNUMBER).arg(QString::number(m_partNumber).ALL_FIELDS_ESCAPE); else
     str.replace(QString("%PARTNUMBER%"), QString::number(m_partNumber));
+    if (all) str += ALL_FIELD_1(PARTTOTAL).arg(QString::number(m_partTotal).ALL_FIELDS_ESCAPE); else
     str.replace(QString("%PARTTOTAL%"), QString::number(m_partTotal));
+    if (all) str += ALL_FIELD_1(ORIGINALAIRDATE).arg(
+                m_originalAirDate.toString(Qt::ISODate).ALL_FIELDS_ESCAPE); else
     str.replace(QString("%ORIGINALAIRDATE%"),
                 m_originalAirDate.toString(Qt::ISODate));
     static const std::array<const QString,4> s_timeStr
@@ -5576,15 +5601,24 @@ void ProgramInfo::SubstituteMatches(QString &str)
         { &m_recStartTs, &m_recEndTs, &m_startTs, &m_endTs, };
     for (size_t i = 0; i < s_timeStr.size(); i++)
     {
+        if (all) str += ALL_FIELD_2().arg(QString(s_timeStr[i]).ALL_FIELDS_ESCAPE,
+                    (time_dtr[i]->toLocalTime()).toString("yyyyMMddhhmmss").ALL_FIELDS_ESCAPE); else
         str.replace(QString("%%1%").arg(s_timeStr[i]),
                     (time_dtr[i]->toLocalTime()).toString("yyyyMMddhhmmss"));
+        if (all) str += ALL_FIELD_2(ISO).arg(QString(s_timeStr[i]).ALL_FIELDS_ESCAPE,
+                    (time_dtr[i]->toLocalTime()).toString(Qt::ISODate).ALL_FIELDS_ESCAPE); else
         str.replace(QString("%%1ISO%").arg(s_timeStr[i]),
                     (time_dtr[i]->toLocalTime()).toString(Qt::ISODate));
+        if (all) str += ALL_FIELD_2(UTC).arg(QString(s_timeStr[i]).ALL_FIELDS_ESCAPE,
+                    time_dtr[i]->toString("yyyyMMddhhmmss").ALL_FIELDS_ESCAPE); else
         str.replace(QString("%%1UTC%").arg(s_timeStr[i]),
                     time_dtr[i]->toString("yyyyMMddhhmmss"));
+        if (all) str += ALL_FIELD_2(ISOUTC).arg(QString(s_timeStr[i]).ALL_FIELDS_ESCAPE,
+                    time_dtr[i]->toString(Qt::ISODate).ALL_FIELDS_ESCAPE); else
         str.replace(QString("%%1ISOUTC%").arg(s_timeStr[i]),
                     time_dtr[i]->toString(Qt::ISODate));
     }
+    if (all) str += ALL_FIELD_1(RECORDEDID).arg(QString::number(m_recordedId).ALL_FIELDS_ESCAPE); else
     str.replace(QString("%RECORDEDID%"), QString::number(m_recordedId));
 }
 
