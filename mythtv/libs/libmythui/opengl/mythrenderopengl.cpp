@@ -24,11 +24,6 @@
 
 #define LOC QString("OpenGL: ")
 
-#ifdef Q_OS_ANDROID
-#include <android/log.h>
-#include <QWindow>
-#endif
-
 static constexpr GLuint VERTEX_INDEX  { 0 };
 static constexpr GLuint COLOR_INDEX   { 1 };
 static constexpr GLuint TEXTURE_INDEX { 2 };
@@ -541,13 +536,6 @@ void MythRenderOpenGL::SetWidget(QWidget *Widget)
         LOG(VB_GENERAL, LOG_CRIT, LOC + "No window surface!");
         return;
     }
-
-#if defined(Q_OS_ANDROID) || (QT_VERSION > QT_VERSION_CHECK(6,3,0))
-    // Ensure surface type is always OpenGL
-    m_window->setSurfaceType(QWindow::OpenGLSurface);
-    if (native && native->windowHandle())
-        native->windowHandle()->setSurfaceType(QWindow::OpenGLSurface);
-#endif
 
 #ifdef CONFIG_QTWEBENGINE
     auto * globalcontext = QOpenGLContext::globalShareContext();
