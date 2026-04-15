@@ -9,10 +9,13 @@
 #include <pthread.h>
 
 #include <QtGlobal> // for Q_OS_XXX
-#if defined(Q_OS_NETBSD) || defined(Q_OS_OPENBSD)
-#define PTHREAD_NULL nullptr
+#if QT_VERSION >= QT_VERSION_CHECK(6,5,0)
+#include <QtSystemDetection>
+#endif
+#if defined(Q_OS_BSD4)
+static constexpr pthread_t PTHREAD_NULL { nullptr };
 #else
-#define PTHREAD_NULL 0
+static constexpr int PTHREAD_NULL { 0 };
 #endif
 #include <QDateTime>
 #include <QFileInfo>
