@@ -4,13 +4,18 @@
 
 #include <QTest>
 
-#define UP   0U
-#define DOWN 1U
-#define SAME 3U
+Q_DECLARE_METATYPE(ChannelChangeDirection);
+
+// Add shorthand values for ChannelChangeDirection and
+// ChannelVisibleType
+#define UP   CHANNEL_DIRECTION_UP
+#define DOWN CHANNEL_DIRECTION_DOWN
+#define SAME CHANNEL_DIRECTION_SAME
 
 #define VIS_YES kChannelVisible
 #define VIS_NO  kChannelNotVisible
 #define VIS_NEV kChannelNeverVisible
+
 // Called once before any tests are started.
 void TestChannelUtil::initTestCase(void)
 {
@@ -74,7 +79,7 @@ void TestChannelUtil::test_getnextchannel_data(void)
     QTest::addColumn<quint32>("old_chanid");
     QTest::addColumn<quint32>("mplexid_restriction");
     QTest::addColumn<quint32>("chanid_restriction");
-    QTest::addColumn<quint32>("direction_int");
+    QTest::addColumn<ChannelChangeDirection>("direction");
     QTest::addColumn<bool>("skip_non_visible");
     QTest::addColumn<bool>("skip_same_channum_and_callsign");
     QTest::addColumn<bool>("skip_other_sources");
@@ -117,13 +122,11 @@ void TestChannelUtil::test_getnextchannel(void)
     QFETCH(quint32, old_chanid);
     QFETCH(quint32, mplexid_restriction);
     QFETCH(quint32, chanid_restriction);
-    QFETCH(quint32, direction_int);
+    QFETCH(ChannelChangeDirection, direction);
     QFETCH(bool, skip_non_visible);
     QFETCH(bool, skip_same_channum_and_callsign);
     QFETCH(bool, skip_other_sources);
     QFETCH(quint32, expected);
-
-    auto direction = static_cast<ChannelChangeDirection>(direction_int);
 
     uint channel =
         ChannelUtil::GetNextChannel(m_channels,
