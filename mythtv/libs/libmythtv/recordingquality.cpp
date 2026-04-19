@@ -167,8 +167,7 @@ static void merge_overlapping(RecordingGaps &gaps)
 
 static double score_gaps(const RecordingInfo &ri, const RecordingGaps &gaps)
 {
-    RecordingGaps::const_iterator it = gaps.begin();
-    if (it == gaps.end())
+    if (gaps.empty())
         return 1.0;
 
     QDateTime start = get_start(ri);
@@ -178,10 +177,10 @@ static double score_gaps(const RecordingInfo &ri, const RecordingGaps &gaps)
         return 0.0;
 
     double score = 1.0;
-    for (; it != gaps.end(); ++it)
+    for (const auto & gap : gaps)
     {
-        double gap_start  = start.secsTo((*it).GetStart());
-        double gap_end    = start.secsTo((*it).GetEnd());
+        double gap_start  = start.secsTo(gap.GetStart());
+        double gap_end    = start.secsTo(gap.GetEnd());
         double gap_length = gap_end - gap_start;
         double rel_start  = gap_start / program_length;
         double rel_end    = gap_end / program_length;
