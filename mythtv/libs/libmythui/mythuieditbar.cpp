@@ -133,7 +133,7 @@ void MythUIEditBar::Display(void)
 
     if (cutarea.isValid())
     {
-        for (const auto region : std::as_const(m_regions))
+        for (const auto& region : std::as_const(m_regions))
         {
             int left  = lroundf(region.first * cutarea.width());
             int right = lroundf(region.second * cutarea.width());
@@ -166,7 +166,7 @@ void MythUIEditBar::Display(void)
 
     if (keeparea.isValid())
     {
-        for (const auto region : std::as_const(m_invregions))
+        for (const auto& region : std::as_const(m_invregions))
         {
             int left  = lroundf(region.first * keeparea.width());
             int right = lroundf(region.second * keeparea.width());
@@ -264,7 +264,7 @@ void MythUIEditBar::CalcInverseRegions(void)
 
     bool first = true;
     float start = 0.0F;
-    for (const auto region : std::as_const(m_regions))
+    for (const auto& region : std::as_const(m_regions))
     {
         if (first)
         {
@@ -304,7 +304,7 @@ void MythUIEditBar::CopyFrom(MythUIType *base)
 
     m_editPosition = editbar->m_editPosition;
 
-    for (const auto region : std::as_const(m_regions))
+    for (const auto& region : std::as_const(m_regions))
         editbar->m_regions.append(region);
 
     MythUIType::CopyFrom(base);
