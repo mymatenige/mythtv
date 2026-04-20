@@ -1750,9 +1750,6 @@ bool SubtitleScreen::Create(void)
 
 void SubtitleScreen::Pulse(void)
 {
-    QList<MythUIType *>::iterator it;
-    QList<MythUIType *>::iterator itNext;
-
     MythVideoOutput *videoOut = m_player->GetVideoOutput();
     MythVideoFrame *currentFrame = videoOut ? videoOut->GetLastShownFrame() : nullptr;
     std::chrono::milliseconds now =
