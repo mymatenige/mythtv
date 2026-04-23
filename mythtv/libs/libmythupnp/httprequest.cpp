@@ -1617,7 +1617,7 @@ bool HTTPRequest::ProcessSOAPPayload( const QString &sSOAPAction )
 #else
     auto parseResult =doc.setContent( m_sPayload,
                                       QDomDocument::ParseOption::UseNamespaceProcessing );
-    if (parseResult)
+    if (!parseResult)
     {
         LOG(VB_GENERAL, LOG_ERR,
             QString( "Error parsing request at line: %1 column: %2 : %3" )
