@@ -1309,6 +1309,7 @@
             "enableupdates_label": "Aktivieren Sie Updates",
             "mustenable": "Änderungen können nur gespeichert werden, wenn Sie auf die Schaltfläche „Aktualisierungen aktivieren“ klicken oder im eingeschränkten Modus neu starten.",
             "mustrestart": "Wenn Sie mit den Updates fertig sind, starten Sie das Backend neu.",
+            "recordingsoon": "Es sind aktive oder ausstehende Aufzeichnungen vorhanden. Seien Sie vorsichtig, wenn Sie Änderungen vornehmen, bevor sie abgeschlossen sind.",
             "restart_desc": "Starten Sie das Backend neu und nehmen Sie den normalen Betrieb wieder auf.",
             "restart_label": "Starten Sie den Backend-Vollbetrieb neu",
             "restart_label_short": "Backend neu starten",
@@ -1321,6 +1322,7 @@
             "slave_warning": "Wenn dies nicht als Slave-Backend gedacht ist, gehen Sie bitte zu „Setup“, „Allgemein“, „Hostadressen-Backend-Setup“ und wählen Sie „Dieser Server ist das Master-Backend“ oder legen Sie die korrekte benutzerdefinierte Kennung auf der Seite „Datenbank-Setup“ fest. Speichern Sie das Backend und starten Sie es neu.",
             "title": "MythTV-Setup",
             "upcomingrec": "Nächste bevorstehende Aufnahme: {{Title}} um {{StartTime}}. Status: {{Status}}",
+            "warninglose": "Wenn Sie fortfahren, verlieren Sie möglicherweise eine oder mehrere ausstehende oder laufende Aufzeichnungen.",
             "webonly": {
                 "DBSETUP": "Das Backend konnte nicht normal gestartet werden, da die Datenbankeinrichtung nicht abgeschlossen war.",
                 "DBTIMEZONE": "Das Backend konnte nicht normal gestartet werden, da keine Datenbankzeitzonen eingerichtet wurden.",
