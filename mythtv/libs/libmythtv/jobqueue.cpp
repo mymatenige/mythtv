@@ -12,7 +12,7 @@
 #if QT_VERSION >= QT_VERSION_CHECK(6,5,0)
 #include <QtSystemDetection>
 #endif
-#if defined(Q_OS_BSD4)
+#ifdef Q_OS_BSD4
 static constexpr pthread_t PTHREAD_NULL { nullptr };
 #else
 static constexpr int PTHREAD_NULL { 0 };
