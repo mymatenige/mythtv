@@ -25,5 +25,8 @@ export class ChannelIconComponent implements OnInit {
         else
             this.authorization = '&authorization=' + accessToken;
     }
+    URLencode(x: string): string {
+        return encodeURI(x);
+    }
 
 }

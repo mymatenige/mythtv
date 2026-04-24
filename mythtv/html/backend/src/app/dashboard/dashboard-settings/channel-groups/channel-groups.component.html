@@ -68,7 +68,7 @@
                 <tr>
                     <td class="pt-1 pb-0">
                         @if (channel.Icon) {
-                        <img src="{{'./Guide/GetChannelIcon?Filename=' + channel.Icon
+                        <img src="{{'./Guide/GetChannelIcon?Filename=' + URLencode(channel.Icon)
                             + authorization }}" height="32" width="42" style="background-color:#000000"
                             onerror="this.height='0'">
                         } @else {

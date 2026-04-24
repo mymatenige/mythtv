@@ -731,4 +731,9 @@ export class ChannelEditorComponent implements OnInit {
         }
     }
 
+    URLencode(x: string): string {
+        return encodeURI(x);
+    }
+
+
 }

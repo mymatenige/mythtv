@@ -2,7 +2,7 @@
     id="{{'Chan'+channel.ChanId}}" pTooltip="{{channel.ChannelName}}">
     <div class="channelIcon">
         @if (channel.IconURL) {
-        <img src="{{'./Guide/GetChannelIcon?Filename=' + channel.Icon + authorization}}" height="57">
+        <img src="{{'./Guide/GetChannelIcon?Filename=' + URLencode(channel.Icon) + authorization}}" height="57">
         } @else {
         <img height="0" width="0">
         }

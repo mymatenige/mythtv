@@ -338,4 +338,8 @@ export class ChannelGroupsComponent implements OnInit, AfterViewInit {
         }
     }
 
+    URLencode(x: string): string {
+        return encodeURI(x);
+    }
+
 }
