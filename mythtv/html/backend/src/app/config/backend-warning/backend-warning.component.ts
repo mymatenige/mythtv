@@ -10,13 +10,14 @@ import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 
 import { CardModule } from 'primeng/card';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
     selector: 'app-backend-warning',
     templateUrl: './backend-warning.component.html',
     styleUrls: ['./backend-warning.component.css'],
     providers: [MessageService],
-    imports: [CardModule, MessageModule, ButtonModule, TranslatePipe]
+    imports: [CardModule, MessageModule, ButtonModule, TranslatePipe, DialogModule]
 })
 export class BackendWarningComponent implements OnInit {
 
@@ -31,6 +32,14 @@ export class BackendWarningComponent implements OnInit {
     hostName = '';
     masterServerName = '';
     rrAllowed = false;
+    recordingSoon = false;
+    displayDlg = false;
+    actionRequest = 0;
+    actionEnableUpdates = 1;
+    actionRestartRestricted = 2;
+    actionRestartFull = 3;
+    actionTitle = '';
+    
 
     constructor(private mythService: MythService, public setupService: SetupService,
         private dvrService: DvrService, private wizardService: SetupWizardService,
@@ -50,6 +59,7 @@ export class BackendWarningComponent implements OnInit {
         if (this.retryCount == 0)
             this.errorCount = 0;
         this.ready = false;
+        this.recordingSoon = false
         this.recStatusDesc = '';
         this.recStartTime = '';
         this.upComing = [];
@@ -118,6 +128,7 @@ export class BackendWarningComponent implements OnInit {
                 next: data => {
                     this.upComing = data.ProgramList.Programs;
                     this.ready = true;
+                    this.recordingSoon = false;
                     if (this.upComing.length > 0) {
                         this.dvrService.RecStatusToString(this.upComing[0].Recording.Status)
                             .subscribe(({
@@ -126,10 +137,38 @@ export class BackendWarningComponent implements OnInit {
                             }));
                         var d = new Date(this.upComing[0].Recording.StartTs);
                         this.recStartTime = d.toLocaleString();
+                        if (this.upComing[0].Recording.Status == -2
+                            || d.valueOf() < Date.now() + 600_000)
+                            this.recordingSoon = true;
                     }
                 },
                 error: () => this.errorCount++
             })
+        setTimeout(() => this.getUpcoming(), 300_000);
+    }
+
+    reqAction(request:number, title: string) {
+        this.actionRequest = request;
+        this.actionTitle = title;
+        if (this.recordingSoon && this.setupService.schedulingEnabled)
+            this.displayDlg = true;
+        else
+            this.takeAction();
+    }
+
+    takeAction() {
+        switch(this.actionRequest) {
+            case this.actionEnableUpdates:
+                this.disableSched();
+                break;
+            case this.actionRestartFull:
+                this.restart(false);
+                break;
+            case this.actionRestartRestricted:
+                this.restart(true);
+                break;
+        }
+        this.actionRequest = 0;
     }
 
     disableSched() {
