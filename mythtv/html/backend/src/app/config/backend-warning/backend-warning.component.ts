@@ -39,7 +39,6 @@ export class BackendWarningComponent implements OnInit {
     actionRestartRestricted = 2;
     actionRestartFull = 3;
     actionTitle = '';
-    
 
     constructor(private mythService: MythService, public setupService: SetupService,
         private dvrService: DvrService, private wizardService: SetupWizardService,
@@ -52,17 +51,13 @@ export class BackendWarningComponent implements OnInit {
         setTimeout(() => {
             this.getBackendInfo();
             this.refreshInfo();
-        }, 120000);
+        }, 120_000);
     }
 
     getBackendInfo() {
         if (this.retryCount == 0)
             this.errorCount = 0;
         this.ready = false;
-        this.recordingSoon = false
-        this.recStatusDesc = '';
-        this.recStartTime = '';
-        this.upComing = [];
         this.mythService.GetHostName().subscribe({
             next: data => {
                 this.hostName = data.String;
@@ -128,7 +123,6 @@ export class BackendWarningComponent implements OnInit {
                 next: data => {
                     this.upComing = data.ProgramList.Programs;
                     this.ready = true;
-                    this.recordingSoon = false;
                     if (this.upComing.length > 0) {
                         this.dvrService.RecStatusToString(this.upComing[0].Recording.Status)
                             .subscribe(({
@@ -140,14 +134,17 @@ export class BackendWarningComponent implements OnInit {
                         if (this.upComing[0].Recording.Status == -2
                             || d.valueOf() < Date.now() + 600_000)
                             this.recordingSoon = true;
+                        else
+                            this.recordingSoon = false;
                     }
+                    else
+                        this.recordingSoon = false;
                 },
                 error: () => this.errorCount++
             })
-        setTimeout(() => this.getUpcoming(), 300_000);
     }
 
-    reqAction(request:number, title: string) {
+    reqAction(request: number, title: string) {
         this.actionRequest = request;
         this.actionTitle = title;
         if (this.recordingSoon && this.setupService.schedulingEnabled)
@@ -157,7 +154,7 @@ export class BackendWarningComponent implements OnInit {
     }
 
     takeAction() {
-        switch(this.actionRequest) {
+        switch (this.actionRequest) {
             case this.actionEnableUpdates:
                 this.disableSched();
                 break;
