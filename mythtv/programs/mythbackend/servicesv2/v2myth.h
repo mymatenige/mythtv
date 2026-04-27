@@ -188,8 +188,9 @@ class V2Myth : public MythHTTPService
                                               const QString &Password,
                                               const QString &NewPassword);
 
-    static QString      LoginUser         (  const QString &UserName,
-                                             const QString &Password );
+    QString             LoginUser         (  const QString & UserName,
+                                             const QString & Password,
+                                             const QString & Client );
 
     static QStringList GetUsers             ( void );
 

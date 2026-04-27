@@ -406,6 +406,7 @@ class Send():
             login_postdata = {}
             login_postdata['UserName'] = self.opts['user']
             login_postdata['Password'] = self.opts['pass']
+            login_postdata['Client'] = 'pythonapi'
         except KeyError:
             self.session_token = None
             return

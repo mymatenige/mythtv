@@ -1234,10 +1234,16 @@ bool V2Myth::ManageDigestUser( const QString &sAction,
 // valid, empty string if not
 
 QString  V2Myth::LoginUser         (  const QString &UserName,
-                                      const QString &Password )
+                                      const QString &Password,
+                                      const QString &Client )
 {
     MythSessionManager *sessionManager = gCoreContext->GetSessionManager();
-    QString client("webapi_" + gCoreContext->GetHostName());
+    QString client;
+
+    if (!HAS_PARAMv2("Client"))
+        client = "webapi_" + gCoreContext->GetHostName();
+    else
+        client = Client + "_" + gCoreContext->GetHostName();
 
     MythUserSession session = sessionManager->LoginUser(UserName, Password, client);
 
