@@ -155,7 +155,7 @@ bool FileLogger::logmsg(LoggingItem *item)
 
     std::string line = item->toString();
 
-    m_ofstream << line;
+    m_ofstream << line << std::flush;
 
     if (m_ofstream.bad())
     {
