@@ -3409,7 +3409,7 @@ bool AvFormatDecoder::ProcessVideoFrame(AVCodecContext* context, AVStream *Strea
 
     if (FlagIsSet(kDecodeNoDecode))
     {
-        // Do nothing, we just want the pts, captions, subtites, etc.
+        // Do nothing, we just want the pts, captions, subtitles, etc.
         // So we can release the unconverted blank video frame to the
         // display queue.
         if (frame)
