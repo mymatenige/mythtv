@@ -44,7 +44,7 @@ void CC708Decoder::decode_cc_data(uint cc_type, uint data1, uint data2)
     {
 #if DEBUG_CC_DECODE
         LOG(VB_VBI, LOG_DEBUG, LOC + QString("CC ST data(0x%1 0x%2)")
-                .arg(data1,0,16).arg(data2,0,16));
+                .arg(data1,2,16,QChar('0')).arg(data2,2,16,QChar('0')));
 #endif
 
         if (m_partialPacket.size && m_reader)
@@ -58,7 +58,7 @@ void CC708Decoder::decode_cc_data(uint cc_type, uint data1, uint data2)
     {
 #if DEBUG_CC_DECODE
         LOG(VB_VBI, LOG_DEBUG, LOC + QString("CC Ex data(0x%1 0x%2)")
-                .arg(data1,0,16).arg(data2,0,16));
+                .arg(data1,2,16,QChar('0')).arg(data2,2,16,QChar('0')));
 #endif
 
         m_partialPacket.data[m_partialPacket.size + 0] = data1;
@@ -258,7 +258,7 @@ static void parse_cc_service_stream(CC708Reader* cc, uint service_num)
             LOG(VB_VBI, LOG_DEBUG, QString("old_i == i == %1").arg(i));
             QString msg;
             for (int j = 0; j < blk_size; j++)
-                msg += QString("0x%1 ").arg(cc->m_buf[service_num][j], 0, 16);
+                msg += QString("0x%1 ").arg(cc->m_buf[service_num][j], 2, 16, QChar('0'));
             LOG(VB_VBI, LOG_DEBUG, msg);
 #endif
             if (blk_size - i > 10)
@@ -298,7 +298,7 @@ static void parse_cc_service_stream(CC708Reader* cc, uint service_num)
                 .arg(i).arg(blk_size));
             QString msg;
             for (i=0; i < blk_size; i++)
-                msg += QString("0x%1 ").arg(cc->m_buf[service_num][i], 0, 16);
+                msg += QString(" 0x%1").arg(cc->m_buf[service_num][i], 0, 16);
             LOG(VB_VBI, LOG_ERR, msg);
         }
         cc->m_buf[service_num].clear();
@@ -583,9 +583,9 @@ static void append_cc(CC708Reader* cc, uint service_num,
 #if DEBUG_CC_SERVICE_2
     {
         uint i;
-        QString msg("append_cc: ");
+        QString msg("append_cc:");
         for (i = 0; i < cc->m_buf[service_num].size(); i++)
-            msg += QString("0x%1").arg(cc->m_buf[service_num][i], 0, 16);
+            msg += QString(" 0x%1").arg(cc->m_buf[service_num][i], 2, 16, QChar('0'));
         LOG(VB_VBI, LOG_DEBUG, msg);
     }
 #endif
@@ -613,10 +613,10 @@ static void parse_cc_packet(CC708Reader* cb_cbs, CaptionPacket* pkt,
     {
         int srv = (pkt_buf[off]>>5) & 0x7;
         int seq_num = (((int)pkt_buf[0])>>6)&0x3;
-        QString msg = QString("CC708 len %1 srv0 %2 seq %3 ").arg(len, 2)
+        QString msg = QString("CC708 len %1 srv0 %2 seq %3").arg(len, 2)
                           .arg(srv) .arg(seq_num);
         for (int j = 0; j < pkt_size; j++)
-            msg += QString("0x%1").arg(pkt_buf[j], 0, 16);
+            msg += QString(" 0x%1").arg(pkt_buf[j], 0, 16);
         LOG(VB_VBI, LOG_DEBUG, msg);
     }
 
@@ -632,14 +632,14 @@ static void parse_cc_packet(CC708Reader* cb_cbs, CaptionPacket* pkt,
             off+2 : off+1;
 #if DEBUG_CC_SERVICE_BLOCK
         LOG(VB_VBI, LOG_DEBUG,
-            QString("service_block size(%1) num(%2) off(%3)")
+            QString("block_size(%1) service_number(%2) block_data_offset(%3)")
                 .arg(block_size) .arg(service_number) .arg(block_data_offset));
 #endif
         if (off+2 == block_data_offset)
         {
             int extended_service_number = pkt_buf[off+2] & 0x3f;
 #if DEBUG_CC_SERVICE_BLOCK
-            LOG(VB_VBI, LOG_DEBUG, QString("ext_svc_num(%1)")
+            LOG(VB_VBI, LOG_DEBUG, QString("extended_service_number(%1)")
                    .arg(extended_service_number));
 #endif
             service_number =  extended_service_number;
@@ -652,10 +652,10 @@ static void parse_cc_packet(CC708Reader* cb_cbs, CaptionPacket* pkt,
                   0==pkt_buf[block_data_offset] &&
                   0==pkt_buf[block_data_offset+1]))
             {
-                QString msg = QString("service %1: ").arg(service_number);
+                QString msg = QString("service %1:").arg(service_number);
                 for (i=0; i<block_size; i++)
-                    msg += QString("0x%1 ")
-                               .arg(pkt_buf[block_data_offset+i], 0, 16);
+                    msg += QString(" 0x%1")
+                               .arg(pkt_buf[block_data_offset+i], 2, 16, QChar('0'));
                 LOG(VB_VBI, LOG_DEBUG, msg);
             }
 #endif
