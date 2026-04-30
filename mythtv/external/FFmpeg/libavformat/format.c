@@ -32,12 +32,6 @@
 #include "internal.h"
 #include "url.h"
 
-/* MYTHTV CHANGES */
-extern AVInputFormat ff_mythtv_mpegts_demuxer;
-extern AVInputFormat ff_mythtv_mpegtsraw_demuxer;
-extern AVInputFormat ff_mpegts_demuxer;
-extern AVInputFormat ff_mpegtsraw_demuxer;
-/* END MYTHTV CHANGES */
 
 /**
  * @file
@@ -178,7 +172,7 @@ const AVInputFormat *av_probe_input_format3(const AVProbeData *pd,
     if (!lpd.buf)
         lpd.buf = (unsigned char *) zerobuffer;
 
-    if (lpd.buf_size > 10 && ff_id3v2_match(lpd.buf, ID3v2_DEFAULT_MAGIC)) {
+    while (lpd.buf_size > 10 && ff_id3v2_match(lpd.buf, ID3v2_DEFAULT_MAGIC)) {
         int id3len = ff_id3v2_tag_len(lpd.buf);
         if (lpd.buf_size > id3len + 16) {
             if (lpd.buf_size < 2LL*id3len + 16)
@@ -187,8 +181,11 @@ const AVInputFormat *av_probe_input_format3(const AVProbeData *pd,
             lpd.buf_size -= id3len;
         } else if (id3len >= PROBE_BUF_MAX) {
             nodat = ID3_GREATER_MAX_PROBE;
-        } else
+            break;
+        } else {
             nodat = ID3_GREATER_PROBE;
+            break;
+        }
     }
 
     while ((fmt1 = av_demuxer_iterate(&i))) {
@@ -228,19 +225,8 @@ const AVInputFormat *av_probe_input_format3(const AVProbeData *pd,
         if (score > score_max) {
             score_max = score;
             fmt       = fmt1;
-        } else if (score == score_max) {
-            // if the conflict is between Myth MPEGTS demux and FFMPEG's origin
-            // use mythtv's one
-            if ((fmt1 == &ff_mpegts_demuxer && fmt == &ff_mythtv_mpegts_demuxer) ||
-                (fmt == &ff_mpegts_demuxer && fmt1 == &ff_mythtv_mpegts_demuxer)) {
-                fmt = &ff_mythtv_mpegts_demuxer;
-            } else if ((fmt1 == &ff_mpegts_demuxer && fmt == &ff_mythtv_mpegtsraw_demuxer) ||
-                      (fmt == &ff_mpegts_demuxer && fmt1 == &ff_mythtv_mpegtsraw_demuxer)) {
-                fmt = &ff_mythtv_mpegtsraw_demuxer;
-            } else {
-                fmt = NULL;
-            }
-        }
+        } else if (score == score_max)
+            fmt = NULL;
     }
     if (nodat == ID3_GREATER_PROBE)
         score_max = FFMIN(AVPROBE_SCORE_EXTENSION / 2 - 1, score_max);
