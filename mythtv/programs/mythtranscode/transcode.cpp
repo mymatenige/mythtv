@@ -288,21 +288,6 @@ int Transcode::TranscodeFile(const QString &inputname,
         newWidth = m_cmdWidth;
         newHeight = m_cmdHeight;
 
-        // Absolutely no purpose is served by scaling video up beyond it's
-        // original resolution, quality is degraded, transcoding is
-        // slower and in future we may wish to scale bitrate according to
-        // resolution, so it would also waste bandwidth (when streaming)
-        if (false)
-        {
-//             if (newWidth > video_width)
-//                 newWidth = video_width;
-            if (newHeight > video_height)
-            {
-                newHeight = video_height;
-                newWidth = 0;
-            }
-        }
-
         // TODO: is this necessary?  It got commented out, but may still be
         // needed.
         // int actualHeight = (video_height == 1088 ? 1080 : video_height);
