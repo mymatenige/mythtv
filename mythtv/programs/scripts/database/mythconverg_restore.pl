@@ -915,7 +915,7 @@ EOF
         my $use_db = shift;
         my $show_errors = shift;
         my $result = 1;
-        my $connect_string = 'dbi:mysql';
+        my $connect_string = 'dbi:MariaDB';
         my $temp_host = $mysql_conf{'db_host'};
         if ($temp_host =~ /:/)
         {

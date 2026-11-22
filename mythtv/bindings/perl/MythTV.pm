@@ -368,7 +368,7 @@ EOF
         }
 
     # Connect to the database
-        $self->{'dbh'} = DBI->connect("dbi:mysql:database=$self->{'db_name'}:host=$self->{'db_host'};port=$self->{'db_port'}",
+        $self->{'dbh'} = DBI->connect("dbi:MariaDB:database=$self->{'db_name'}:host=$self->{'db_host'};port=$self->{'db_port'}",
                                       $self->{'db_user'},
                                       $self->{'db_pass'})
             or die "Cannot connect to database: $!\n\n";

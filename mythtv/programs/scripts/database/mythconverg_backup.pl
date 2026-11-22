@@ -708,7 +708,7 @@ EOF
                 $temp_host = "[$temp_host]";
               }
             }
-            $dbh = DBI->connect("dbi:mysql:".
+            $dbh = DBI->connect("dbi:MariaDB:".
                                 "host=$temp_host:".
                                 "port=$mysql_conf{'db_port'}:".
                                 "database=$mysql_conf{'db_name'}",
